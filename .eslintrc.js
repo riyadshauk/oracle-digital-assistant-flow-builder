@@ -1,0 +1,13 @@
+module.exports = {
+  extends: ['airbnb', 'plugin:flowtype/recommended'],
+  parser: 'babel-eslint',
+  plugins: ['flowtype'],
+  rules: {
+    'react/jsx-filename-extension': 0,
+    'eol-last': 0,
+    //  Disabling the following import rules because VSCode seems to be throwing useless errors with them on
+    'import/no-named-as-default': 0,
+    'import/no-named-as-default-member': 0,
+    'import/named': 0,
+  },
+};
