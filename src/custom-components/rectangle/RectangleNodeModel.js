@@ -4,7 +4,6 @@ import RectanglePortModel from './RectanglePortModel';
 
 export default class RectangleNodeModel extends NodeModel {
   constructor(name: string = 'Untitled', color: string = 'rgb(0,192,255)', type: string = 'rectangle') {
-    // super(name, color, type);
     super(type);
     this.name = name;
     this.color = color;

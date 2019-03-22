@@ -18,6 +18,7 @@ export interface RectangleNodeWidgetState {
 
 /**
  * @author Dylan Vorster
+ * @author Riyad Shauk
  */
 export default class RectangleNodeWidget extends React.Component<RectangleNodeWidgetProps,
   RectangleNodeWidgetState> {

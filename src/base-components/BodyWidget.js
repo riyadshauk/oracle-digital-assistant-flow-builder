@@ -19,7 +19,6 @@ export type BodyWidgetState = {};
 /**
  * @author Dylan Vorster
  */
-// eslint-disable-next-line import/prefer-default-export
 export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetState> {
   constructor(props: BodyWidgetProps) {
     super(props);

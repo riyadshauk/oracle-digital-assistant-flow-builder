@@ -4,7 +4,6 @@ import DiamondPortModel from './DiamondPortModel';
 
 export default class DiamondNodeModel extends NodeModel {
   constructor(name: string = 'Untitled', color: string = 'rgb(0,192,255)', type: string = 'diamond') {
-    // super(name, color, type);
     super(type);
     this.name = name;
     this.color = color;

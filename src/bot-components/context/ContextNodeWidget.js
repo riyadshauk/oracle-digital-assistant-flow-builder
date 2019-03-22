@@ -10,7 +10,7 @@ export interface ContextNodeWidgetProps {
 export interface ContextNodeWidgetState {}
 
 /**
- * @author Dylan Vorster
+ * @author Riyad Shauk
  */
 export default class ContextNodeWidget extends React.Component<ContextNodeWidgetProps,
   ContextNodeWidgetState> {
@@ -24,7 +24,6 @@ export default class ContextNodeWidget extends React.Component<ContextNodeWidget
   };
 
   render() {
-    console.log('ContextNodeWidget rendering');
     const { node } = this.props;
     return (
       <div
