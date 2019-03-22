@@ -6,6 +6,9 @@ import TrayWidget from './TrayWidget';
 import App from '../App';
 import TrayItemWidget from './TrayItemWidget';
 import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
+import DiamondNodeModel from '../custom-components/diamond/DiamondNodeModel';
+import RectangleNodeModel from '../custom-components/rectangle/RectangleNodeModel';
+import ContextNodeModel from '../bot-components/context/ContextNodeModel';
 
 export type BodyWidgetProps = {
   app: App;
@@ -35,6 +38,9 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
             <TrayItemWidget model={{ type: 'in' }} name="In Node" color="rgb(192,255,0)" />
             <TrayItemWidget model={{ type: 'out' }} name="Out Node" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'bot' }} name="Digital Assistant Root" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'diamond' }} name="Custom Diamond Node" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'rectangle' }} name="Custom Rectangle Node" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'context' }} name="DA Context Node" color="rgb(0,192,255)" />
           </TrayWidget>
           <div
             className="diagram-layer"
@@ -56,6 +62,12 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
               } else if (data.type === 'bot') {
                 node = new AdvancedNodeModel('Digital Assistant Root', 'rgb(0,192,255)');
                 node.addOutPort('Out');
+              } else if (data.type === 'diamond') {
+                node = new DiamondNodeModel('Custom Diamond', 'rgb(0,192,255)');
+              } else if (data.type === 'rectangle') {
+                node = new RectangleNodeModel('Custom Rectangle', 'rgb(0,192,255)');
+              } else if (data.type === 'context') {
+                node = new ContextNodeModel('Context Node', 'rgb(0,192,255)');
               } else {
                 node = new AdvancedNodeModel();
               }

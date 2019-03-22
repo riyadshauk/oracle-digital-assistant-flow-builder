@@ -1,9 +1,8 @@
-// @flow
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import 'storm-react-diagrams/dist/style.min.css';
-import BodyWidget from './components/BodyWidget';
+import BodyWidget from './base-components/BodyWidget';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 

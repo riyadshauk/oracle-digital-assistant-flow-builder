@@ -57,8 +57,8 @@ export class AdvancedNodeModel extends NodeModel<NodeModelListener> {
 
   ports: { [s: string]: AdvancedPortModel };
 
-  constructor(name: string = 'Untitled', color: string = 'rgb(0,192,255)') {
-    super('default');
+  constructor(name: string = 'Untitled', color: string = 'rgb(0,192,255)', type: string = 'default') {
+    super(type);
     this.name = name;
     this.color = color;
   }

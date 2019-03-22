@@ -11,6 +11,10 @@ export type TrayItemWidgetState = {};
 
 // eslint-disable-next-line import/prefer-default-export
 export default class TrayItemWidget extends Component<TrayItemWidgetProps, TrayItemWidgetState> {
+  static defaultProps: {
+    color: string,
+  };
+
   constructor(props: TrayItemWidgetProps) {
     super(props);
     this.state = {};
