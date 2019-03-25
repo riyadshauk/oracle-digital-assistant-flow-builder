@@ -102,15 +102,7 @@ export default class DefaultComponentNodeWidget extends
     />
   );
 
-  isEditing = () => {
-    const { isEditing } = this.state;
-    const vals = Object.values(isEditing);
-    let acc = false;
-    vals.forEach((val) => {
-      acc = acc || val;
-    });
-    return acc;
-  }
+  isEditing = () => Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
 
   render() {
     const { node } = this.props;
