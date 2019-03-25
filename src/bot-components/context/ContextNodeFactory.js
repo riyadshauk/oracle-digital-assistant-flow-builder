@@ -7,7 +7,7 @@ import {
 import ContextNodeNodeModel from './ContextNodeModel';
 import ContextNodeWidget from './ContextNodeWidget';
 
-export default class ContextNodeNodeFactory extends AbstractNodeFactory {
+export default class ContextNodeFactory extends AbstractNodeFactory {
   constructor() {
     super('context');
   }

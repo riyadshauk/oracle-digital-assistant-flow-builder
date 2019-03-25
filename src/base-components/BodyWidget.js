@@ -9,6 +9,7 @@ import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 import DiamondNodeModel from '../custom-components/diamond/DiamondNodeModel';
 import RectangleNodeModel from '../custom-components/rectangle/RectangleNodeModel';
 import ContextNodeModel from '../bot-components/context/ContextNodeModel';
+import DefaultComponentNodeModel from '../bot-components/defaultComponent/DefaultComponentNodeModel';
 
 export type BodyWidgetProps = {
   app: App;
@@ -40,6 +41,7 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
             <TrayItemWidget model={{ type: 'diamond' }} name="Custom Diamond Node" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'rectangle' }} name="Custom Rectangle Node" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'context' }} name="DA Context Node" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'default-component' }} name="DA Default Component Node" color="rgb(0,192,255)" />
           </TrayWidget>
           <div
             className="diagram-layer"
@@ -67,6 +69,8 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
                 node = new RectangleNodeModel('Custom Rectangle', 'rgb(0,192,255)');
               } else if (data.type === 'context') {
                 node = new ContextNodeModel('Context Node', 'rgb(0,192,255)');
+              } else if (data.type === 'default-component') {
+                node = new DefaultComponentNodeModel('Default Component Node', 'rgb(0,192,255)');
               } else {
                 node = new AdvancedNodeModel();
               }

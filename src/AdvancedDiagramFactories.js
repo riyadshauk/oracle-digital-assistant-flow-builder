@@ -6,6 +6,7 @@ import {
   DefaultLinkFactory, DefaultPortModel, DefaultLinkModel, DefaultLinkWidget,
   DiagramEngine, Toolkit, NodeModel, NodeModelListener,
   BaseEvent,
+  // PortModel,
 } from 'storm-react-diagrams';
 // https://github.com/projectstorm/react-diagrams/issues/325 : Changing Link Color
 export class AdvancedLinkModel extends DefaultLinkModel {
@@ -25,6 +26,8 @@ export class AdvancedPortModel extends DefaultPortModel {
   createLinkModel(): AdvancedLinkModel {
     return new AdvancedLinkModel();
   }
+
+  canLinkToPort = () => true;
 }
 
 export class AdvancedLinkFactory extends DefaultLinkFactory {
