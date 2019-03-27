@@ -9,7 +9,9 @@
     "node-sass": "^4.11.0",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
+    "react-redux": "^6.0.1",
     "react-scripts": "2.1.8",
+    "redux": "^4.0.1",
     "storm-react-diagrams": "^5.2.1"
   },
   "scripts": {

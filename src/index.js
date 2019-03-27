@@ -1,14 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import { Provider } from 'react-redux';
 import 'storm-react-diagrams/dist/style.min.css';
+import './index.css';
 import BodyWidget from './base-components/BodyWidget';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import store from './redux/store';
+
+// eslint-disable-next-line no-undef
+const rootElement = document.getElementById('root');
 
 const app = new App();
-// eslint-disable-next-line no-undef
-ReactDOM.render(<BodyWidget app={app} />, document.getElementById('root'));
+ReactDOM.render(
+  <Provider store={store}>
+    <BodyWidget app={app} />
+  </Provider>,
+  rootElement,
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

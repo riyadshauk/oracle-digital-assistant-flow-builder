@@ -21,6 +21,10 @@ export default class App {
 
   constructor() {
     this.diagramEngine = new SRD.DiagramEngine();
+    /**
+     * Add a decorator over diagramEngine?
+     * -> Curry certain functions (adding links, etc) to wrap extra functionality?
+     */
     this.diagramEngine.installDefaultFactories();
     this.diagramEngine.registerLinkFactory(new AdvancedLinkFactory());
     this.diagramEngine.registerPortFactory(new SimplePortFactory('diamond', () => new DiamondPortModel()));

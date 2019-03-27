@@ -1,7 +1,6 @@
 // @flow
 import React, { Component } from 'react';
 import * as _ from 'lodash';
-import { DiagramWidget } from 'storm-react-diagrams';
 import TrayWidget from './TrayWidget';
 import App from '../App';
 import TrayItemWidget from './TrayItemWidget';
@@ -10,6 +9,7 @@ import DiamondNodeModel from '../custom-components/diamond/DiamondNodeModel';
 import RectangleNodeModel from '../custom-components/rectangle/RectangleNodeModel';
 import ContextNodeModel from '../bot-components/context/ContextNodeModel';
 import DefaultComponentNodeModel from '../bot-components/defaultComponent/DefaultComponentNodeModel';
+import ModifiedDiagramWidget from './ModifiedDiagramWidget';
 
 export type BodyWidgetProps = {
   app: App;
@@ -87,7 +87,8 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
               event.preventDefault();
             }}
           >
-            <DiagramWidget className="srd-demo-canvas" diagramEngine={app.getDiagramEngine()} />
+            {/* Use ModifiedDiagramWidget here instead, to override delete functionality */}
+            <ModifiedDiagramWidget className="srd-demo-canvas" diagramEngine={app.getDiagramEngine()} />
           </div>
         </div>
       </div>
