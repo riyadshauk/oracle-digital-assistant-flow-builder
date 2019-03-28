@@ -1,10 +1,13 @@
 // @flow
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { DefaultNodeWidget, NodeModel } from 'storm-react-diagrams';
 import ContextNodeModel from './ContextNodeModel';
+import { addContextVariable } from '../../redux/actions';
 
 export interface ContextNodeWidgetProps {
   node: ContextNodeModel;
+  addContextVariable: typeof addContextVariable;
 }
 
 export interface ContextNodeWidgetState {
@@ -14,10 +17,11 @@ export interface ContextNodeWidgetState {
 /**
  * @author Riyad Shauk
  */
-export default class ContextNodeWidget extends React.Component<ContextNodeWidgetProps,
+class ContextNodeWidget extends React.Component<ContextNodeWidgetProps,
   ContextNodeWidgetState> {
   static defaultProps: ContextNodeWidgetProps = {
     node: NodeModel,
+    addContextVariable,
   };
 
   constructor(props: ContextNodeWidgetProps) {
@@ -29,13 +33,15 @@ export default class ContextNodeWidget extends React.Component<ContextNodeWidget
 
   addVariable = (event: Event) => {
     event.preventDefault(); // prevent form submission from routing browser to different path
-    const { node } = this.props;
+    const { node, addContextVariable } = this.props;
     const { variableName } = this.state;
     if (!variableName) return; // do not allow un-named variables, here
     node.addInPort(variableName);
     this.clearVariableName();
     // @todo this may not be a correct approach: https://stackoverflow.com/questions/30626030/can-you-force-a-react-component-to-rerender-without-calling-setstate#answer-35004739
     this.forceUpdate(); // force re-render (to fix bug when user needs to click again to re-render)
+
+    addContextVariable({ name: variableName, entityType: variableName }); // add to redux store
   };
 
   updateVariableName = (event: SyntheticInputEvent<EventTarget>) => (
@@ -61,3 +67,8 @@ export default class ContextNodeWidget extends React.Component<ContextNodeWidget
     );
   }
 }
+
+export default connect(
+  null,
+  { addContextVariable },
+)(ContextNodeWidget);

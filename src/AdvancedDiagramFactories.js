@@ -67,6 +67,7 @@ export class AdvancedNodeModel extends NodeModel<NodeModelListener> {
   }
 
   addInPort(label: string): AdvancedPortModel {
+    console.log('AdvancedNodeModel this:', this);
     return this.addPort(new AdvancedPortModel(true, Toolkit.UID(), label));
   }
 

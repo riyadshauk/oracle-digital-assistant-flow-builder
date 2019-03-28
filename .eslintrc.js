@@ -9,5 +9,11 @@ module.exports = {
     'import/no-named-as-default': 0,
     'import/no-named-as-default-member': 0,
     'import/named': 0,
+    // https://stackoverflow.com/questions/37682705/avoid-no-shadow-eslint-error-with-mapdispatchtoprops (react-redux bug)
+    'no-shadow': [
+      'error',
+      {
+        allow: ['addContextVariable'],
+      },
   },
 };
