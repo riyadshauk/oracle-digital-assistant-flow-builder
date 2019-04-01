@@ -4,8 +4,8 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import ContextNodeNodeModel from './ContextNodeModel';
 import ContextNodeWidget from './ContextNodeWidget';
+import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export default class ContextNodeFactory extends AbstractNodeFactory {
   constructor() {
@@ -20,6 +20,6 @@ export default class ContextNodeFactory extends AbstractNodeFactory {
   }
 
   getNewInstance() {
-    return new ContextNodeNodeModel();
+    return new AdvancedNodeModel(undefined, undefined, 'context');
   }
 }

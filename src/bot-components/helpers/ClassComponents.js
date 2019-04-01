@@ -1,20 +1,21 @@
 // @flow
 import * as React from 'react';
 import { BaseWidget, BaseWidgetProps, PortWidget } from 'storm-react-diagrams';
-import DefaultComponentPortModel from './DefaultComponentPortModel';
+import { AdvancedPortModel } from '../../AdvancedDiagramFactories';
 
 export interface DefaultComponentPortLabelProps extends BaseWidgetProps {
-  model: DefaultComponentPortModel;
+  model: AdvancedPortModel;
   editClicked: Function;
 }
 
-export interface DefaultComponentPortLabelState {}
+export interface DefaultComponentPortLabelState { }
 
 /**
  * @author Dylan Vorster
  * @author Riyad Shauk
  */
-export default class DefaultComponentPortLabel extends
+// eslint-disable-next-line import/prefer-default-export
+export class DefaultComponentPortLabel extends
   BaseWidget<DefaultComponentPortLabelProps, DefaultComponentPortLabelState> {
   constructor(props: DefaultComponentPortLabelProps) {
     super('srd-default-port', props);

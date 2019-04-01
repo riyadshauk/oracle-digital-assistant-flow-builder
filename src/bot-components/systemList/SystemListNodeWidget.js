@@ -1,31 +1,28 @@
 // @flow
 import * as React from 'react';
 import { NodeModel, BaseWidget } from 'storm-react-diagrams';
+import { registerNotEditable } from '../helpers/helpers';
 import { DefaultComponentNodeForm, DefaultComponentNodeBody } from '../helpers/PureComponents';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
-export interface DefaultComponentNodeWidgetProps {
+export interface SystemListNodeWidgetProps {
   node: AdvancedNodeModel;
 }
 
-export interface DefaultComponentNodeWidgetState {
-  propertyName: string;
-  propertyValue: string;
-  isEditing: boolean;
-  prevPropertyName: string;
+export interface SystemListNodeWidgetState {
   notEditable: {};
 }
 
 /**
  * @author Riyad Shauk
  */
-export default class DefaultComponentNodeWidget extends
-  BaseWidget<DefaultComponentNodeWidgetProps, DefaultComponentNodeWidgetState> {
-  static defaultProps: DefaultComponentNodeWidgetProps = {
+export default class SystemListNodeWidget extends
+  BaseWidget<SystemListNodeWidgetProps, SystemListNodeWidgetState> {
+  static defaultProps: SystemListNodeWidgetProps = {
     node: NodeModel,
   };
 
-  constructor(props: DefaultComponentNodeWidgetProps) {
+  constructor(props: SystemListNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
       propertyName: '',
@@ -34,6 +31,12 @@ export default class DefaultComponentNodeWidget extends
       prevPropertyName: '',
       notEditable: {},
     };
+  }
+
+  componentWillMount() {
+    const { node } = this.props;
+    node.addInPort('variable');
+    registerNotEditable.apply(this, ['variable']);
   }
 
   render() {

@@ -4,22 +4,22 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import DefaultComponentNodeWidget from './DefaultComponentNodeWidget';
+import ConditionExistsNodeWidget from './ConditionExistsNodeWidget';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
-export default class DefaultComponentNodeFactory extends AbstractNodeFactory {
+export default class extends AbstractNodeFactory {
   constructor() {
-    super('default-component');
+    super('condition-exists');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
     // eslint-disable-next-line no-param-reassign
-    node.color = 'lightblue';
-    return <DefaultComponentNodeWidget node={node} />;
+    node.color = 'green';
+    return <ConditionExistsNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'default-component');
+    return new AdvancedNodeModel(undefined, undefined, 'condition-exists');
   }
 }

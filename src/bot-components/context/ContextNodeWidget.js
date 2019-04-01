@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { DefaultNodeWidget, NodeModel } from 'storm-react-diagrams';
-import ContextNodeModel from './ContextNodeModel';
 import { addContextVariable } from '../../redux/actions';
+import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export interface ContextNodeWidgetProps {
-  node: ContextNodeModel;
+  node: AdvancedNodeModel;
   addContextVariable: typeof addContextVariable;
 }
 

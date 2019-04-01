@@ -3,11 +3,13 @@
 import React from 'react';
 import * as _ from 'lodash';
 import {
-  DefaultLinkFactory, DefaultPortModel, DefaultLinkModel, DefaultLinkWidget,
+  DefaultPortModel, DefaultLinkWidget,
   DiagramEngine, Toolkit, NodeModel, NodeModelListener,
   BaseEvent,
-  // PortModel,
+  DefaultLinkModel,
+  DefaultLinkFactory,
 } from 'storm-react-diagrams';
+
 // https://github.com/projectstorm/react-diagrams/issues/325 : Changing Link Color
 export class AdvancedLinkModel extends DefaultLinkModel {
   constructor() {
@@ -67,7 +69,6 @@ export class AdvancedNodeModel extends NodeModel<NodeModelListener> {
   }
 
   addInPort(label: string): AdvancedPortModel {
-    console.log('AdvancedNodeModel this:', this);
     return this.addPort(new AdvancedPortModel(true, Toolkit.UID(), label));
   }
 

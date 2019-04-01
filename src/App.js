@@ -9,7 +9,8 @@ import DiamondPortModel from './custom-components/diamond/DiamondPortModel';
 import RectangleNodeFactory from './custom-components/rectangle/RectangleNodeFactory';
 import ContextNodeFactory from './bot-components/context/ContextNodeFactory';
 import DefaultComponentNodeFactory from './bot-components/defaultComponent/DefaultComponentNodeFactory';
-import ContextPortModel from './bot-components/context/ContextPortModel';
+import ConditionExistsNodeFactory from './bot-components/conditionExists/ConditionExistsNodeFactory';
+import SystemListNodeFactory from './bot-components/systemList/SystemListNodeFactory';
 
 /**
  * @author Dylan Vorster
@@ -31,8 +32,9 @@ export default class App {
     this.diagramEngine.registerNodeFactory(new DiamondNodeFactory());
     this.diagramEngine.registerNodeFactory(new RectangleNodeFactory());
     this.diagramEngine.registerNodeFactory(new ContextNodeFactory());
-    this.diagramEngine.registerPortFactory(new SimplePortFactory('context', () => new ContextPortModel('right')));
     this.diagramEngine.registerNodeFactory(new DefaultComponentNodeFactory());
+    this.diagramEngine.registerNodeFactory(new ConditionExistsNodeFactory());
+    this.diagramEngine.registerNodeFactory(new SystemListNodeFactory());
     this.newModel();
   }
 
