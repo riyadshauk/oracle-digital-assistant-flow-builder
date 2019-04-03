@@ -8,6 +8,8 @@ import {
   BaseEvent,
   DefaultLinkModel,
   DefaultLinkFactory,
+  LinkModel,
+  PortModel,
 } from 'storm-react-diagrams';
 
 // https://github.com/projectstorm/react-diagrams/issues/325 : Changing Link Color
@@ -21,6 +23,8 @@ export class AdvancedLinkModel extends DefaultLinkModel {
         listener.colorChanged({ ...event, color });
       }
     });
+    // console.log('AdvancedLinkModel this:', this);
+    // this.addLabel(`${this.sourcePort.label} ->`);
   }
 }
 
@@ -28,6 +32,15 @@ export class AdvancedPortModel extends DefaultPortModel {
   createLinkModel(): AdvancedLinkModel {
     return new AdvancedLinkModel();
   }
+
+  // link(port: PortModel): LinkModel {
+  //   const link = this.createLinkModel();
+  //   link.setSourcePort(this);
+  //   link.setTargetPort(port);
+  //   link.addLabel(`${this.sourcePort.label} -> ${link.targetPort.label}`);
+  //   console.log('AdvancedPortModel link:', link);
+  //   return link;
+  // }
 
   canLinkToPort = () => true;
 }
@@ -44,6 +57,8 @@ export class AdvancedLinkFactory extends DefaultLinkFactory {
 
   generateLinkSegment(model: AdvancedLinkModel, widget: DefaultLinkWidget,
     selected: boolean, path: string) {
+    // console.log('AdvancedLinkModel model:', model);
+    // model.addLabel(`${model.sourcePort.label} ->`);
     return (
       <path
         className={selected ? widget.bem('--path-selected') : ''}
@@ -62,7 +77,7 @@ export class AdvancedNodeModel extends NodeModel<NodeModelListener> {
 
   ports: { [s: string]: AdvancedPortModel };
 
-  constructor(name: string = 'Untitled', color: string = 'rgb(0,192,255)', type: string = 'default') {
+  constructor(name: string = 'Untitled', color: string = 'lightblue', type: string = 'default') {
     super(type);
     this.name = name;
     this.color = color;

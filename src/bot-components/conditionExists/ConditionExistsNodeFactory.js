@@ -14,8 +14,6 @@ export default class extends AbstractNodeFactory {
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    // eslint-disable-next-line no-param-reassign
-    node.color = 'green';
     return <ConditionExistsNodeWidget node={node} />;
   }
 

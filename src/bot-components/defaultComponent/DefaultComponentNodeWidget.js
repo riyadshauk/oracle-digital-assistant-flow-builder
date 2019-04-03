@@ -1,8 +1,9 @@
 // @flow
 import * as React from 'react';
 import { NodeModel, BaseWidget } from 'storm-react-diagrams';
-import { DefaultComponentNodeForm, DefaultComponentNodeBody } from '../helpers/PureComponents';
+import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
+import { registerNotEditable } from '../../helpers/helpers';
 
 export interface DefaultComponentNodeWidgetProps {
   node: AdvancedNodeModel;
@@ -36,12 +37,18 @@ export default class DefaultComponentNodeWidget extends
     };
   }
 
+  componentWillMount() {
+    const { node } = this.props;
+    node.addInPort(' ');
+    registerNotEditable.apply(this, [' ']);
+  }
+
   render() {
     const { node } = this.props;
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
         { DefaultComponentNodeForm.apply(this, [this]) }
-        { DefaultComponentNodeBody.apply(this, [node, this]) }
+        { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
       </div>
     );
   }

@@ -8,7 +8,7 @@ export interface ConditionExistsNodeWidgetProps {
   node: AdvancedNodeModel;
 }
 
-export interface ConditionExistsNodeWidgetState {}
+export interface ConditionExistsNodeWidgetState { }
 
 /**
  * @author Riyad Shauk
@@ -29,6 +29,7 @@ export default class ConditionExistsNodeWidget extends
 
   componentWillMount() {
     const { node } = this.props;
+    node.addInPort(' ');
     node.addInPort('variable');
     node.addInPort('exists');
     node.addInPort('¬ exists');
@@ -36,24 +37,24 @@ export default class ConditionExistsNodeWidget extends
 
   render() {
     const { node } = this.props;
-
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-
         <div {...this.getProps()} style={{ background: node.color }}>
           <div className={this.bem('__title')}>
             <div className={this.bem('__name')}>{node.name}</div>
+            <div className={this.bem('__in')}>
+              {this.generatePort(node.getInPorts()[0])}
+            </div>
           </div>
           <div className={this.bem('__ports')}>
             <div className={this.bem('__in')}>
-              {_.map(node.getInPorts(), this.generatePort)}
+              {_.map(node.getInPorts(), this.generatePort).slice(1)}
             </div>
             <div className={this.bem('__out')}>
               {_.map(node.getOutPorts(), this.generatePort)}
             </div>
           </div>
         </div>
-
       </div>
     );
   }

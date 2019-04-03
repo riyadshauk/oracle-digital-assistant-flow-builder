@@ -1,8 +1,8 @@
 // @flow
 import * as React from 'react';
 import { NodeModel, BaseWidget } from 'storm-react-diagrams';
-import { registerNotEditable } from '../helpers/helpers';
-import { DefaultComponentNodeForm, DefaultComponentNodeBody } from '../helpers/PureComponents';
+import { registerNotEditable } from '../../helpers/helpers';
+import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export interface SystemListNodeWidgetProps {
@@ -35,8 +35,12 @@ export default class SystemListNodeWidget extends
 
   componentWillMount() {
     const { node } = this.props;
+    node.addInPort(' ');
+    registerNotEditable.apply(this, [' ']);
     node.addInPort('variable');
     registerNotEditable.apply(this, ['variable']);
+    node.addInPort('prompt –– ');
+    node.addInPort('options –– ');
   }
 
   render() {
@@ -44,7 +48,7 @@ export default class SystemListNodeWidget extends
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
         { DefaultComponentNodeForm.apply(this, [this]) }
-        { DefaultComponentNodeBody.apply(this, [node, this]) }
+        { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
       </div>
     );
   }

@@ -55,6 +55,8 @@ export interface DiagramState {
   windowListener: any;
   diagramEngineListener: any;
   document: any;
+  // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+  shiftKeyDown: boolean;
 }
 
 export const defaultProps: DiagramProps = {
@@ -81,6 +83,9 @@ export const defaultProps: DiagramProps = {
 export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, DiagramState> {
   onKeyUpPointer: (thisVar: EventTarget, ev: KeyboardEvent) => void;
 
+  // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+  onKeyDownPointer: (thisVar: EventTarget, ev: KeyboardEvent) => void;
+
   constructor(props: DiagramProps) {
     super('srd-diagram', props);
     this.state = {
@@ -90,6 +95,9 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
       windowListener: null,
       diagramEngineListener: null,
       document: null,
+      // eslint-disable-next-line max-len
+      // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+      shiftKeyDown: false,
     };
   }
 
@@ -98,6 +106,9 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
     this.props.diagramEngine.setCanvas(null);
     // eslint-disable-next-line no-undef
     window.removeEventListener('keyup', this.onKeyUpPointer);
+    // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+    // eslint-disable-next-line no-undef
+    window.removeEventListener('keydown', this.onKeyDownPointer);
     // eslint-disable-next-line no-undef
     window.removeEventListener('mouseUp', this.onMouseUp);
     // eslint-disable-next-line no-undef
@@ -138,6 +149,9 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
   componentDidMount() {
     this.onKeyUpPointer = this.onKeyUp.bind(this);
 
+    // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+    this.onKeyDownPointer = this.onKeyDown.bind(this);
+
     // add a keyboard listener
     this.setState({
       // eslint-disable-next-line no-undef
@@ -152,6 +166,9 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
 
     // eslint-disable-next-line no-undef
     window.addEventListener('keyup', this.onKeyUpPointer, false);
+
+    // eslint-disable-next-line no-undef
+    window.addEventListener('keydown', this.onKeyDownPointer, false); // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
 
     // dont focus the window when in test mode - jsdom fails
     if (process.env.NODE_ENV !== 'test') {
@@ -345,6 +362,10 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
 
   onKeyUp(event: Event) {
     // delete all selected
+    // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+    if (!this.state.shiftKeyDown) {
+      return;
+    }
     // $FlowFixMe
     if (this.props.deleteKeys.indexOf(event.keyCode) !== -1) {
       _.forEach(this.props.diagramEngine.getDiagramModel().getSelectedItems(), (element) => {
@@ -354,6 +375,17 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
         }
       });
       this.forceUpdate();
+    }
+    // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+    this.setState({ shiftKeyDown: false });
+  }
+
+  // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
+  onKeyDown(event: Event) {
+    // register shift key
+    // $FlowFixMe
+    if (event.shiftKey) {
+      this.setState({ shiftKeyDown: true });
     }
   }
 
