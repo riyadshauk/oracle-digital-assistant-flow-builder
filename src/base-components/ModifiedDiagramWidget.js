@@ -6,8 +6,11 @@
  * This file is simply an adaptation of { DiagramWidget } from 'storm-react-diagrams'.
  *
  * The intial purpose of adapting DiagramWidget.ts, here, is to dynamically override the delete-key
- * functionality (probably by pushing the state of deleteKeys into an application-level store,
- * ie, a Redux store)
+ * functionality (by allowing the special delete-key functionality only while the shift key is
+ * simultaneously pressed)
+ *
+ * Relevant code revision are annotated with the following comment:
+ *  @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
  */
 import * as React from 'react';
 import * as _ from 'lodash';

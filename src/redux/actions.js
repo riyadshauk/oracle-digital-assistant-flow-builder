@@ -15,8 +15,8 @@ export const addState = (state: State) => ({
 export const addContextVariable = (variable: ContextVariable) => {
   console.log('addContextVariable variable:', variable);
   return {
-  type: ADD_CONTEXT_VARIABLE,
-  payload: { variable },
+    type: ADD_CONTEXT_VARIABLE,
+    payload: { variable },
   };
 };
 export const addPlatform = (platformVersion: string) => ({

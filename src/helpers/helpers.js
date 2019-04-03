@@ -1,7 +1,13 @@
 // @flow
 import * as React from 'react';
-import { DefaultPortLabel } from 'storm-react-diagrams';
+import {
+  DefaultPortLabel,
+  NodeModel,
+  PortModel,
+  LinkModel,
+} from 'storm-react-diagrams';
 import { DefaultComponentPortLabel } from './ClassComponents';
+import DigitalAssistantRootNodeModel from '../bot-components/digitalAssistantRoot/DigitalAssistantRootNodeModel';
 
 export function registerNotEditable(variableName: string) {
   this.state.notEditable[variableName] = true;
@@ -79,7 +85,7 @@ export function isEditing() {
 export function editClicked(port: any) {
   if (isEditing.apply(this)) {
     this.state.isEditing[port.props.name] = false;
-    this.forceUpdate();
+    // this.forceUpdate();
   } else {
     this.state.isEditing[port.props.name] = true;
     const { label } = port.props.node.ports[port.props.name];
@@ -133,3 +139,36 @@ export function addOrUpdateRawProperty(event: Event) {
   // @todo this may not be a correct approach: https://stackoverflow.com/questions/30626030/can-you-force-a-react-component-to-rerender-without-applying-setstate#answer-35004739
   this.forceUpdate(); // force re-render (to fix bug when user needs to click again to re-render)
 }
+
+/**
+ * @todo traverse relevant parts of diagram tree to ultimately contruct Flow YAML
+ * @param {DigitalAssistantRootNodeModel} botRoot
+ */
+export const traverseBotTree = (botRoot: DigitalAssistantRootNodeModel) => {
+  console.log('botRoot:', botRoot);
+
+  const linkVisited = {};
+  const components = [];
+
+  const traverseTree = (subRoot: NodeModel) => {
+    Object.values(subRoot.ports).forEach((port: PortModel) => {
+      const links = Object.entries(port.links);
+      links.forEach((entry) => {
+        if (linkVisited[entry[0]]) {
+          return;
+        }
+        linkVisited[entry[0]] = true;
+        const link: LinkModel = entry[1];
+        const parentNodeName = link.targetPort.parent.name;
+        const linkLabel = link.targetPort.label;
+        const linkName = (parentNodeName + linkLabel).trim();
+        console.log('linkName:', linkName);
+        components.push(linkName);
+        traverseTree(link.targetPort.parent);
+      });
+    });
+  };
+
+  traverseTree(botRoot);
+  console.log('components:', components);
+};

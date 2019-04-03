@@ -8,8 +8,8 @@ import {
   BaseEvent,
   DefaultLinkModel,
   DefaultLinkFactory,
-  LinkModel,
-  PortModel,
+  // LinkModel,
+  // PortModel,
 } from 'storm-react-diagrams';
 
 // https://github.com/projectstorm/react-diagrams/issues/325 : Changing Link Color

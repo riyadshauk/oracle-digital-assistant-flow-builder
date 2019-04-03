@@ -10,8 +10,8 @@ import store from './redux/store';
 
 // eslint-disable-next-line no-undef
 const rootElement = document.getElementById('root');
-const markerHead = 'markerHead';
-const markerHeadInversed = 'markerHeadInversed';
+// const markerHead = 'markerHead';
+// const markerHeadInversed = 'markerHeadInversed';
 
 const app = new App();
 ReactDOM.render(
