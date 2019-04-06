@@ -1,25 +1,40 @@
 // @flow
 import { dump } from 'js-yaml';
 import {
-  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_PARAMETER,
+  // eslint-disable-next-line max-len
+  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_PARAMETER, ADD_TRANSITION,
+  // eslint-disable-next-line max-len
   RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_PARAMETER,
-  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_PARAMETER,
+  // eslint-disable-next-line max-len
+  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_PARAMETER, REMOVE_TRANSITION,
 } from '../actionTypes';
 import {
   type State, type ContextVariable,
 } from '../representationTypes';
 
 const initialState = {
-  metadata: {
-    platformVersion: '1.0',
+  representation: {
+    metadata: {
+      platformVersion: '1.0',
+    },
+    main: true,
+    name: 'defaultName',
+    parameters: {},
+    context: {
+      variables: {},
+    },
+    states: {},
   },
-  main: true,
-  name: 'defaultName',
-  parameters: {},
-  context: {
-    variables: {},
-  },
-  states: {},
+};
+
+const stateNameToCount = {};
+const generateNextStateNameCount = (stateName: string) => {
+  if (Object.prototype.hasOwnProperty.call(stateNameToCount, [stateName])) {
+    stateNameToCount[stateName] += 1;
+  } else {
+    stateNameToCount[stateName] = 1;
+  }
+  return stateNameToCount[stateName];
 };
 
 export default (state: typeof initialState = initialState,
@@ -28,23 +43,25 @@ export default (state: typeof initialState = initialState,
   switch (action.type) {
     case ADD_STATE: {
       const newState: State = action.payload.state;
-      return {
-        ...state,
-        states: {
-          ...state.states,
-          newState,
-        },
-      };
+      const newStateName: string = action.payload.name;
+      const nextState = { ...state };
+      nextState.representation.states[
+        newStateName + generateNextStateNameCount(newStateName)
+      ] = newState;
+      return nextState;
     }
     case ADD_CONTEXT_VARIABLE: {
       const { variable } = action.payload;
       const { name, entityType } = (variable: ContextVariable);
       return {
         ...state,
-        context: {
-          variables: {
-            ...state.context.variables,
-            ...{ [name]: entityType },
+        representation: {
+          ...state.representation,
+          context: {
+            variables: {
+              ...state.representation.context.variables,
+              ...{ [name]: entityType },
+            },
           },
         },
       };
@@ -53,37 +70,52 @@ export default (state: typeof initialState = initialState,
       const { platformVersion } = action.payload;
       return {
         ...state,
-        metadata: { platformVersion },
+        representation: {
+          ...state.representation,
+          metadata: { platformVersion },
+        },
       };
     }
     case ADD_NAME: {
       const { botName } = action.payload;
       return {
         ...state,
-        name: botName,
+        representation: {
+          ...state.representation,
+          name: botName,
+        },
       };
     }
     case ADD_PARAMETER: {
       const { param } = action.payload;
       return {
         ...state,
-        parameters: {
-          ...state.parameters,
-          ...param,
+        representation: {
+          ...state.representation,
+          parameters: {
+            ...state.representation.parameters,
+            ...param,
+          },
         },
       };
+    }
+    case ADD_TRANSITION: {
+      const { sourceState, targetState } = action.payload;
+      const nextState = { ...state };
+      nextState.representation.states[sourceState.name] = targetState.name;
+      return nextState;
     }
     case RENAME_STATE: {
       return {
         ...state,
-
       };
     }
     case RENAME_CONTEXT_VARIABLE: {
-      return {
-        ...state,
-
-      };
+      const { prev, cur } = action.payload;
+      const nextState = { ...state };
+      delete nextState.representation.context.variables[prev.name];
+      nextState.representation.context.variables[cur.name] = cur.entityType;
+      return nextState;
     }
     case RENAME_PLATFORM: {
       return {
@@ -110,10 +142,10 @@ export default (state: typeof initialState = initialState,
       };
     }
     case REMOVE_CONTEXT_VARIABLE: {
-      return {
-        ...state,
-
-      };
+      const { variable } = action.payload;
+      const nextState = { ...state };
+      delete nextState.representation.context.variables[variable.name];
+      return nextState;
     }
     case REMOVE_PLATFORM: {
       return {
@@ -132,6 +164,9 @@ export default (state: typeof initialState = initialState,
         ...state,
 
       };
+    }
+    case REMOVE_TRANSITION: {
+      return { ...state };
     }
     default:
       return state;

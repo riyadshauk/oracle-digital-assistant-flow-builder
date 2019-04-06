@@ -50,9 +50,9 @@ export default class App {
     this.activeModel = new DiagramModel();
     this.diagramEngine.setDiagramModel(this.activeModel);
 
-    this.botRoot = new DigitalAssistantRootNodeModel();
-    this.botRoot.setPosition(300, 50);
-    this.activeModel.addAll(this.botRoot);
+    // this.botRoot = new DigitalAssistantRootNodeModel();
+    // this.botRoot.setPosition(300, 50);
+    // this.activeModel.addAll(this.botRoot);
   }
 
   getActiveDiagram(): DiagramModel {

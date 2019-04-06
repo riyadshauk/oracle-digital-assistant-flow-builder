@@ -1,14 +1,30 @@
 // @flow
 import * as React from 'react';
-import * as _ from 'lodash';
 import { NodeModel, BaseWidget, DefaultPortLabel } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
+import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
+import { registerNotEditable } from '../../helpers/helpers';
 
 export interface ConditionEqualsNodeWidgetProps {
   node: AdvancedNodeModel;
 }
 
-export interface ConditionEqualsNodeWidgetState { }
+export interface ConditionEqualsNodeWidgetState {
+  representation: {
+    component: 'System.ConditionEquals',
+    properties: {
+      variable: string,
+      value: string,
+    },
+    transitions: {
+      actions: {
+        equal: string,
+        notequal: string,
+      },
+    },
+  };
+  notEditable: {};
+}
 
 /**
  * @author Riyad Shauk
@@ -21,6 +37,26 @@ export default class ConditionEqualsNodeWidget extends
 
   constructor(props: ConditionEqualsNodeWidgetProps) {
     super('srd-default-node', props);
+    this.state = {
+      propertyName: '',
+      propertyValue: '',
+      isEditing: {},
+      prevPropertyName: '',
+      notEditable: {},
+      representation: {
+        component: 'System.ConditionEquals',
+        properties: {
+          variable: '',
+          value: '',
+        },
+        transitions: {
+          actions: {
+            equal: '',
+            notequal: '',
+          },
+        },
+      },
+    };
   }
 
   generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />
@@ -31,30 +67,19 @@ export default class ConditionEqualsNodeWidget extends
     const { node } = this.props;
     node.addInPort(' ');
     node.addInPort('variable');
-    node.addInPort('=');
-    node.addInPort('≠');
+    node.addInPort('value –– ');
+    node.addInPort('true');
+    node.addInPort('false');
+
+    registerNotEditable.apply(this, [' ', 'variable', 'true', 'false']);
   }
 
   render() {
     const { node } = this.props;
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        <div {...this.getProps()} style={{ background: node.color }}>
-          <div className={this.bem('__title')}>
-            <div className={this.bem('__name')}>{node.name}</div>
-            <div className={this.bem('__in')}>
-              {this.generatePort(node.getInPorts()[0])}
-            </div>
-          </div>
-          <div className={this.bem('__ports')}>
-            <div className={this.bem('__in')}>
-              {_.map(node.getInPorts(), this.generatePort).slice(1)}
-            </div>
-            <div className={this.bem('__out')}>
-              {_.map(node.getOutPorts(), this.generatePort)}
-            </div>
-          </div>
-        </div>
+        { DefaultComponentNodeForm.apply(this, [this]) }
+        { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
       </div>
     );
   }

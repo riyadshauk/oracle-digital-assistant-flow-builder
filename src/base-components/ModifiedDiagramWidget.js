@@ -33,6 +33,7 @@ import {
   BaseWidget,
   BaseWidgetProps,
 } from 'storm-react-diagrams';
+import DigitalAssistantRootNodeModel from '../bot-components/digitalAssistantRoot/DigitalAssistantRootNodeModel';
 
 export interface DiagramProps extends BaseWidgetProps {
   diagramEngine: DiagramEngine;
@@ -82,6 +83,7 @@ export const defaultProps: DiagramProps = {
 
 /**
  * @author Dylan Vorster
+ * @author Riyad Shauk
  */
 export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, DiagramState> {
   onKeyUpPointer: (thisVar: EventTarget, ev: KeyboardEvent) => void;
@@ -372,6 +374,11 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
     // $FlowFixMe
     if (this.props.deleteKeys.indexOf(event.keyCode) !== -1) {
       _.forEach(this.props.diagramEngine.getDiagramModel().getSelectedItems(), (element) => {
+        // @Riyad-edit: do not allow deletion of Digital Assistant Root Node.
+        if (element instanceof DigitalAssistantRootNodeModel) {
+          return;
+        }
+
         // only delete items which are not locked
         if (!this.props.diagramEngine.isModelLocked(element)) {
           element.remove();
@@ -469,6 +476,7 @@ export default class ModifiedDiagramWidget extends BaseWidget<DiagramProps, Diag
             )
           ) {
             // link is a duplicate
+            console.log('link:', link);
             link.remove();
           }
         }

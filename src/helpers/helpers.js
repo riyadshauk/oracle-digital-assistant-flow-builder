@@ -8,9 +8,14 @@ import {
 } from 'storm-react-diagrams';
 import { DefaultComponentPortLabel } from './ClassComponents';
 import DigitalAssistantRootNodeModel from '../bot-components/digitalAssistantRoot/DigitalAssistantRootNodeModel';
+import {
+  type ContextVariable,
+} from '../redux/representationTypes';
 
-export function registerNotEditable(variableName: string) {
-  this.state.notEditable[variableName] = true;
+export function registerNotEditable(...variableNames: string[]) {
+  variableNames.forEach((variableName) => {
+    this.state.notEditable[variableName] = true;
+  });
 }
 
 export function clearPropertyName() {
@@ -21,42 +26,91 @@ export function clearPropertyValue() {
   this.setState({ propertyValue: '' });
 }
 
+const alreadyHasPropertyWithSameName = (node: NodeModel, propertyName: string): boolean => {
+  const ports = [...node.getInPorts(), ...node.getOutPorts()];
+  for (let i = 0; i < ports.length; i += 1) {
+    const re = RegExp(`${propertyName} –– `, 'g');
+    const portName = ports[i].label;
+    const occurrences = portName.match(re);
+    if (occurrences !== undefined && occurrences && occurrences.length === 1) {
+      return true;
+    }
+  }
+  return false;
+};
 
-export function addLabel() {
+const isValidPropertyName = (node: NodeModel, propertyName: string): boolean => {
+  if (!propertyName) {
+    return false; // do not allow un-named variables, here
+  }
+  if (alreadyHasPropertyWithSameName(node, propertyName)) {
+    return false;
+  }
+  return true;
+};
+
+export function addLabel(
+  addContextVariable?: (variableName: ContextVariable) => void,
+) {
   const { node } = this.props;
   const { propertyName, propertyValue } = this.state;
-  if (!propertyName) return; // do not allow un-named variables, here
+  if (!isValidPropertyName(node, propertyName)) {
+    return;
+  }
   node.addInPort(`${propertyName} –– ${propertyValue}`);
+  if (typeof addContextVariable === 'function') {
+    addContextVariable({ name: propertyName, entityType: propertyValue });
+  }
 }
 
-export function updateLabel() {
+export function updateLabel(
+  addContextVariable?: (variableName: ContextVariable) => void,
+  renameContextVariable?: ({ prev: ContextVariable, cur: ContextVariable }) => void,
+) {
   const { node } = this.props;
   const { propertyName, propertyValue } = this.state;
-  if (!propertyName) return; // do not allow un-named variables, here
+  if (!isValidPropertyName(node, propertyName)) {
+    return;
+  }
   const ports = node.getInPorts();
   const re = RegExp(`${propertyName} –– `, 'g');
   for (let i = 0; i < ports.length; i += 1) {
     const portName = ports[i].label;
     const occurrences = portName.match(re);
     if (occurrences !== undefined && occurrences && occurrences.length === 1) {
+      if (typeof renameContextVariable === 'function') {
+        const prevVals = ports[i].label.split(' –– ');
+        renameContextVariable({
+          prev: { name: prevVals[0], entityType: prevVals[1] },
+          cur: { name: propertyName, entityType: propertyValue },
+        });
+      }
+
       ports[i].label = `${propertyName} –– ${propertyValue}`;
       this.state.isEditing[ports[i].name] = false;
       break;
     }
+  }
+  if (typeof addContextVariable === 'function') {
+    addContextVariable({ name: propertyName, entityType: propertyValue });
   }
 }
 
 export function addRawLabel() {
   const { node } = this.props;
   const { propertyName } = this.state;
-  if (!propertyName) return; // do not allow un-named variables, here
+  if (!isValidPropertyName(node, propertyName)) {
+    return;
+  }
   node.addInPort(propertyName);
 }
 
 export function updateRawLabel() {
   const { node } = this.props;
   const { propertyName } = this.state;
-  if (!propertyName) return; // do not allow un-named variables, here
+  if (!isValidPropertyName(node, propertyName)) {
+    return;
+  }
   const ports = node.getInPorts();
   const re = RegExp(`${propertyName}`, 'g');
   for (let i = 0; i < ports.length; i += 1) {
@@ -85,7 +139,7 @@ export function isEditing() {
 export function editClicked(port: any) {
   if (isEditing.apply(this)) {
     this.state.isEditing[port.props.name] = false;
-    // this.forceUpdate();
+    this.forceUpdate();
   } else {
     this.state.isEditing[port.props.name] = true;
     const { label } = port.props.node.ports[port.props.name];
@@ -114,12 +168,14 @@ export function generatePort(port: any) {
   );
 }
 
-export function addOrUpdateProperty(event: Event) {
+export function addOrUpdateProperty(event: Event,
+  addContextVariable?: (variableName: { name: string, entityType: string }) => void,
+  renameContextVariable?: ({ prev: ContextVariable, cur: ContextVariable }) => void) {
   event.preventDefault(); // prevent form submission from routing browser to different path
   if (isEditing.apply(this)) {
-    updateLabel.apply(this);
+    updateLabel.apply(this, [addContextVariable, renameContextVariable]);
   } else {
-    addLabel.apply(this);
+    addLabel.apply(this, [addContextVariable]);
   }
   clearPropertyName.apply(this);
   clearPropertyValue.apply(this);

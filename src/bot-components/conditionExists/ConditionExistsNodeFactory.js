@@ -4,8 +4,8 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import ConditionExistsNodeWidget from './ConditionExistsNodeWidget';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
+import ConditionExistsNodeWidget from '../../redux/containers/exists';
 
 export default class extends AbstractNodeFactory {
   constructor() {

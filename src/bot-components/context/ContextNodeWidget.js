@@ -1,14 +1,19 @@
 // @flow
 import * as React from 'react';
-import { connect } from 'react-redux';
-import { NodeModel, BaseWidget } from 'storm-react-diagrams';
-import { addContextVariable } from '../../redux/actions';
+import {
+  BaseWidget,
+} from 'storm-react-diagrams';
+import {
+  addContextVariable,
+  renameContextVariable,
+} from '../../redux/actions';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeBody, VariableNameComponentNodeForm } from '../../helpers/PureComponents';
 
 export interface ContextNodeWidgetProps {
   node: AdvancedNodeModel;
   addContextVariable: typeof addContextVariable;
+  renameContextVariable: typeof renameContextVariable;
 }
 
 export interface ContextNodeWidgetState {
@@ -17,18 +22,20 @@ export interface ContextNodeWidgetState {
   isEditing: boolean;
   prevPropertyName: string;
   notEditable: {};
+  representation: {
+    context: {
+      variables: {
+        [key: string]: string,
+      },
+    },
+  };
 }
 
 /**
  * @author Riyad Shauk
  */
-class ContextNodeWidget extends BaseWidget<ContextNodeWidgetProps,
+export default class extends BaseWidget<ContextNodeWidgetProps,
   ContextNodeWidgetState> {
-  static defaultProps: ContextNodeWidgetProps = {
-    node: NodeModel,
-    addContextVariable,
-  };
-
   constructor(props: ContextNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
@@ -37,21 +44,24 @@ class ContextNodeWidget extends BaseWidget<ContextNodeWidgetProps,
       isEditing: {},
       prevPropertyName: '',
       notEditable: {},
+      representation: {
+        context: {
+          variables: {},
+        },
+      },
     };
   }
 
   render() {
-    const { node } = this.props;
+    const { node, addContextVariable, renameContextVariable } = this.props;
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        { VariableNameComponentNodeForm.apply(this, [this]) }
-        { DefaultComponentNodeBody.apply(this, [node, this]) }
+        {
+          VariableNameComponentNodeForm
+            .apply(this, [this, addContextVariable, renameContextVariable])
+        }
+        {DefaultComponentNodeBody.apply(this, [node, this])}
       </div>
     );
   }
 }
-
-export default connect(
-  null,
-  { addContextVariable },
-)(ContextNodeWidget);

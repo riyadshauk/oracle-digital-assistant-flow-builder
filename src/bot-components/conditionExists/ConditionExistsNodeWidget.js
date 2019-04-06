@@ -1,26 +1,59 @@
 // @flow
 import * as React from 'react';
 import * as _ from 'lodash';
-import { NodeModel, BaseWidget, DefaultPortLabel } from 'storm-react-diagrams';
+import {
+  BaseWidget,
+  DefaultPortLabel,
+} from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export interface ConditionExistsNodeWidgetProps {
   node: AdvancedNodeModel;
+  addState: Function;
 }
 
-export interface ConditionExistsNodeWidgetState { }
+export interface ConditionExistsNodeWidgetState {
+  representation: {
+    component: 'System.ConditionExists',
+    properties: {
+      variable: string,
+    },
+    transitions: {
+      actions: {
+        exists: string,
+        notexists: string,
+      },
+    },
+  },
+  name: string,
+}
 
 /**
  * @author Riyad Shauk
  */
-export default class ConditionExistsNodeWidget extends
+export default class extends
   BaseWidget<ConditionExistsNodeWidgetProps, ConditionExistsNodeWidgetState> {
-  static defaultProps: ConditionExistsNodeWidgetProps = {
-    node: NodeModel,
-  };
-
   constructor(props: ConditionExistsNodeWidgetProps) {
     super('srd-default-node', props);
+    console.log('ConditionExists constructor invoked');
+    this.state = {
+      representation: {
+        component: 'System.ConditionExists',
+        properties: {
+          variable: '',
+        },
+        transitions: {
+          actions: {
+            exists: '',
+            notexists: '',
+          },
+        },
+      },
+      name: 'System.ConditionExists.Name',
+    };
+    const { addState } = props;
+    const newStateName = 'System.ConditionExists.Name';
+    addState(this.state.representation, newStateName);
   }
 
   generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />
@@ -31,8 +64,8 @@ export default class ConditionExistsNodeWidget extends
     const { node } = this.props;
     node.addInPort(' ');
     node.addInPort('variable');
-    node.addInPort('exists');
-    node.addInPort('¬ exists');
+    node.addInPort('true');
+    node.addInPort('false');
   }
 
   render() {

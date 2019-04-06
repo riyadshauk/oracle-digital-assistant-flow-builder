@@ -5,7 +5,7 @@ import App from '../App';
 import TrayItemWidget from './TrayItemWidget';
 import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 import ModifiedDiagramWidget from './ModifiedDiagramWidget';
-import { traverseBotTree } from '../helpers/helpers';
+// import { traverseBotTree } from '../helpers/helpers';
 
 export type BodyWidgetProps = {
   app: App;
@@ -15,6 +15,7 @@ export type BodyWidgetState = {};
 
 /**
  * @author Dylan Vorster
+ * @author Riyad Shauk
  */
 export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetState> {
   constructor(props: BodyWidgetProps) {
@@ -32,14 +33,14 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
         <div className="content">
           <TrayWidget>
             <TrayItemWidget model={{ type: 'context' }} name="Context" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'default-component' }} name="Default Component" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'condition-exists' }} name="Condition Exists" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'system-list' }} name="List" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'condition-equals' }} name="Condition Equals" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'system-output' }} name="Output" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'condition-equals' }} name="Equals" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'condition-exists' }} name="Exists" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'system-list' }} name="List" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'intent' }} name="Intent" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'default-component' }} name="Default Component" color="rgb(0,192,255)" />
           </TrayWidget>
           <div
             className="diagram-layer"
@@ -51,14 +52,14 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
                 case 'context':
                   node = new AdvancedNodeModel('Context Node', 'rgb(0,192,255)', 'context');
                   break;
-                case 'condition-exists':
-                  node = new AdvancedNodeModel('Condition Exists', 'rgb(0,192,255)', 'condition-exists');
-                  break;
                 case 'system-list':
                   node = new AdvancedNodeModel('List', 'rgb(0,192,255)', 'system-list');
                   break;
                 case 'condition-equals':
-                  node = new AdvancedNodeModel('Condition Equals', 'rgb(0,192,255)', 'condition-equals');
+                  node = new AdvancedNodeModel('Equals', 'rgb(0,192,255)', 'condition-equals');
+                  break;
+                case 'condition-exists':
+                  node = new AdvancedNodeModel('Exists', 'rgb(0,192,255)', 'condition-exists');
                   break;
                 case 'set-variable':
                   node = new AdvancedNodeModel('Set Variable', 'rgb(0,192,255)', 'set-variable');
@@ -89,7 +90,7 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
                 .addNode(node);
               this.forceUpdate();
 
-              traverseBotTree(app.getBotRoot());
+              // traverseBotTree(app.getBotRoot());
             }}
             onDragOver={(event) => {
               event.preventDefault();

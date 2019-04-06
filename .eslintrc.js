@@ -13,7 +13,7 @@ module.exports = {
     'no-shadow': [
       'error',
       {
-        allow: ['addContextVariable'],
+        allow: ['addContextVariable', 'renameContextVariable'],
       },
     ],
   },

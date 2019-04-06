@@ -40,9 +40,8 @@ export default class SetVariableNodeWidget extends
   componentWillMount() {
     const { node } = this.props;
     node.addInPort(' ');
-    registerNotEditable.apply(this, [' ']);
     node.addInPort('variable');
-    registerNotEditable.apply(this, ['variable']);
+    registerNotEditable.apply(this, [' ', 'variable']);
     node.addInPort('value –– ');
   }
 

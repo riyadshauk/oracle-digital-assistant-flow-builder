@@ -9,6 +9,7 @@ export type State = {
       [key: string]: string,
     },
   },
+  name: string,
 };
 export type ContextVariable = {
   name: string,

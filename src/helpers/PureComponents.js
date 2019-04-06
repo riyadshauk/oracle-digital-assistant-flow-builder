@@ -8,8 +8,10 @@ import {
   isEditing,
   addOrUpdateProperty,
   generatePort,
-  addOrUpdateRawProperty,
 } from './helpers';
+import {
+  type ContextVariable,
+} from '../redux/representationTypes';
 
 export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
   const { propertyName, propertyValue } = thisWidget.state;
@@ -31,13 +33,18 @@ export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
   );
 };
 
-export const VariableNameComponentNodeForm = (thisWidget: BaseWidget) => {
-  const { propertyName } = thisWidget.state;
+export const VariableNameComponentNodeForm = (thisWidget: BaseWidget,
+  addContextVariable?: ({ name: string, entityType: string }) => void,
+  renameContextVariable?: ({ prev: ContextVariable, cur: ContextVariable }) => void) => {
+  const { propertyName, propertyValue } = thisWidget.state;
   return (
-    <form id="addVariable" onSubmit={addOrUpdateRawProperty.bind(thisWidget)}>
+    <form id="addVariable" onSubmit={(event: Event) => addOrUpdateProperty.apply(thisWidget, [event, addContextVariable, renameContextVariable])}>
       <label htmlFor="addOrUpdateProperty">
         Name:&nbsp;
         <input type="text" value={propertyName} onChange={updatePropertyName.bind(thisWidget)} />
+        <br />
+        EntityType:&nbsp;
+        <input type="text" value={propertyValue} onChange={updatePropertyValue.bind(thisWidget)} />
         <br />
         <input
           type="submit"
