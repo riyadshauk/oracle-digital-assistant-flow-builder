@@ -47,7 +47,9 @@ export const addTransition = (sourceState: State, targetState: State) => ({
 });
 
 
-export const renameContextVariable = (prev: ContextVariable, cur: ContextVariable) => {
+export const renameContextVariable = (
+  { prev, cur }: { prev: ContextVariable, cur: ContextVariable },
+) => {
   console.log('renameContextVariable invoked, cur:', cur);
   return {
     type: RENAME_CONTEXT_VARIABLE,

@@ -3,11 +3,8 @@ import * as React from 'react';
 import {
   DefaultPortLabel,
   NodeModel,
-  PortModel,
-  LinkModel,
 } from 'storm-react-diagrams';
 import { DefaultComponentPortLabel } from './ClassComponents';
-import DigitalAssistantRootNodeModel from '../bot-components/digitalAssistantRoot/DigitalAssistantRootNodeModel';
 import {
   type ContextVariable,
 } from '../redux/representationTypes';
@@ -39,7 +36,7 @@ const alreadyHasPropertyWithSameName = (node: NodeModel, propertyName: string): 
   return false;
 };
 
-const isValidPropertyName = (node: NodeModel, propertyName: string): boolean => {
+const isValidNewPropertyName = (node: NodeModel, propertyName: string): boolean => {
   if (!propertyName) {
     return false; // do not allow un-named variables, here
   }
@@ -54,7 +51,7 @@ export function addLabel(
 ) {
   const { node } = this.props;
   const { propertyName, propertyValue } = this.state;
-  if (!isValidPropertyName(node, propertyName)) {
+  if (!isValidNewPropertyName(node, propertyName)) {
     return;
   }
   node.addInPort(`${propertyName} –– ${propertyValue}`);
@@ -69,8 +66,8 @@ export function updateLabel(
 ) {
   const { node } = this.props;
   const { propertyName, propertyValue } = this.state;
-  if (!isValidPropertyName(node, propertyName)) {
-    return;
+  if (!propertyName) {
+    return; // do not allow un-named variables, here
   }
   const ports = node.getInPorts();
   const re = RegExp(`${propertyName} –– `, 'g');
@@ -80,6 +77,8 @@ export function updateLabel(
     if (occurrences !== undefined && occurrences && occurrences.length === 1) {
       if (typeof renameContextVariable === 'function') {
         const prevVals = ports[i].label.split(' –– ');
+        console.log('prevVals:', prevVals);
+        console.log('propertyName, propertyValue:', propertyName, propertyValue);
         renameContextVariable({
           prev: { name: prevVals[0], entityType: prevVals[1] },
           cur: { name: propertyName, entityType: propertyValue },
@@ -99,7 +98,7 @@ export function updateLabel(
 export function addRawLabel() {
   const { node } = this.props;
   const { propertyName } = this.state;
-  if (!isValidPropertyName(node, propertyName)) {
+  if (!isValidNewPropertyName(node, propertyName)) {
     return;
   }
   node.addInPort(propertyName);
@@ -108,7 +107,7 @@ export function addRawLabel() {
 export function updateRawLabel() {
   const { node } = this.props;
   const { propertyName } = this.state;
-  if (!isValidPropertyName(node, propertyName)) {
+  if (!isValidNewPropertyName(node, propertyName)) {
     return;
   }
   const ports = node.getInPorts();
@@ -195,36 +194,3 @@ export function addOrUpdateRawProperty(event: Event) {
   // @todo this may not be a correct approach: https://stackoverflow.com/questions/30626030/can-you-force-a-react-component-to-rerender-without-applying-setstate#answer-35004739
   this.forceUpdate(); // force re-render (to fix bug when user needs to click again to re-render)
 }
-
-/**
- * @todo traverse relevant parts of diagram tree to ultimately contruct Flow YAML
- * @param {DigitalAssistantRootNodeModel} botRoot
- */
-export const traverseBotTree = (botRoot: DigitalAssistantRootNodeModel) => {
-  console.log('botRoot:', botRoot);
-
-  const linkVisited = {};
-  const components = [];
-
-  const traverseTree = (subRoot: NodeModel) => {
-    Object.values(subRoot.ports).forEach((port: PortModel) => {
-      const links = Object.entries(port.links);
-      links.forEach((entry) => {
-        if (linkVisited[entry[0]]) {
-          return;
-        }
-        linkVisited[entry[0]] = true;
-        const link: LinkModel = entry[1];
-        const parentNodeName = link.targetPort.parent.name;
-        const linkLabel = link.targetPort.label;
-        const linkName = (parentNodeName + linkLabel).trim();
-        console.log('linkName:', linkName);
-        components.push(linkName);
-        traverseTree(link.targetPort.parent);
-      });
-    });
-  };
-
-  traverseTree(botRoot);
-  console.log('components:', components);
-};

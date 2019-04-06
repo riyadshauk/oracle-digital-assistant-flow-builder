@@ -3,18 +3,12 @@
  * @author Dylan Vorster
  * @author Riyad Shauk
  */
-import * as _ from 'lodash';
 import {
   LinkModelListener,
   BaseEvent,
-  DiagramEngine,
-  DefaultLabelModel,
-  LabelModel,
   DefaultLinkModel,
-  LinkModel,
   PortModel,
 } from 'storm-react-diagrams';
-// import ModifiedLinkModel from '../../playground/ModifiedLinkModel';
 
 export interface DefaultLinkModelListener extends LinkModelListener {
   colorChanged?: (event: BaseEvent<DefaultLinkModel> & { color: null | string }) => void;
@@ -22,73 +16,33 @@ export interface DefaultLinkModelListener extends LinkModelListener {
   widthChanged?: (event: BaseEvent<DefaultLinkModel> & { width: 0 | number }) => void;
 }
 
-export default class ModifiedDefaultLinkModel extends LinkModel<DefaultLinkModelListener> {
-  width: number;
-
-  color: string;
-
-  curvyness: number;
-
+/**
+ * The purpose of this class is to dynamically add meaningful labels to the diagram.
+ *
+ * This class decorates and overrides some methods derived from LinkModel
+ * (which is extended by DefaultLinkModel).
+ *
+ * DISCLAIMER: I understand that extending React components is heavily discouraged in the
+ * React/Facebook community; however, the storm-react-diagrams library was built in a way that
+ * highly encourages extending React components. To avoid massive code duplication, I've decided
+ * to follow along with this (anti?)-pattern here.
+ *
+ * I may want to fix this issue in the future (maybe creating a PR to storm-react-diagrams?)
+ * @see https://reactjs.org/docs/composition-vs-inheritance.html
+ */
+export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLinkModelListener> {
   constructor(type: string = 'default') {
     super(type);
-    this.color = 'rgba(255,255,255,0.5)';
-    this.width = 3;
-    this.curvyness = 50;
   }
 
-  serialize() {
-    return _.merge(super.serialize(), {
-      width: this.width,
-      color: this.color,
-      curvyness: this.curvyness,
-    });
-  }
-
-  deSerialize(ob: any, engine: DiagramEngine) {
-    super.deSerialize(ob, engine);
-    this.color = ob.color;
-    this.width = ob.width;
-    this.curvyness = ob.curvyness;
-  }
-
-  addLabel(label: LabelModel | string) {
-    if (label instanceof LabelModel) {
-      return super.addLabel(label);
-    }
-    const labelOb = new DefaultLabelModel();
-    labelOb.setLabel(label);
-    return super.addLabel(labelOb);
-  }
-
-  setWidth(width: number) {
-    this.width = width;
-    this.iterateListeners((listener: DefaultLinkModelListener, event: BaseEvent) => {
-      if (listener.widthChanged) {
-        listener.widthChanged({ ...event, width });
-      }
-    });
-  }
-
-  setColor(color: string) {
-    this.color = color;
-    this.iterateListeners((listener: DefaultLinkModelListener, event: BaseEvent) => {
-      if (listener.colorChanged) {
-        listener.colorChanged({ ...event, color });
-      }
-    });
-  }
-
-  // decorate and modify some methods from LinkModel:
-
-  // @Riyad-edit: add meaningful label to link
+  /**
+   * @helper This is a helper method for the two overridden methods below
+   * (setSourcePort and setTargetPort).
+   */
   generateLabelIfPossible() {
     if (this.targetPort === null || this.sourcePort === null) {
       return;
     }
-
-    console.log('this.sourcePort:', this.sourcePort);
-    console.log('this.targetPort:', this.targetPort);
-
     // eslint-disable-next-line max-len
     // this.addLabel(`${this.sourcePort.parent.name}.${this.sourcePort.label} -–> ${this.targetPort.parent.name}.${this.targetPort.label}`);
     // $FlowFixMe

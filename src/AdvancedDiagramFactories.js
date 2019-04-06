@@ -6,14 +6,9 @@ import {
   DefaultPortModel, DefaultLinkWidget,
   DiagramEngine, Toolkit, NodeModel, NodeModelListener,
   BaseEvent,
-  DefaultLinkModel,
   DefaultLinkFactory,
-  // LinkModel,
-  // PortModel,
 } from 'storm-react-diagrams';
 import ModifiedDefaultLinkModel from './base-components/ModifiedDefaultLinkModel';
-// import ModifiedLinkModel from '../playground/ModifiedLinkModel';
-// import ModifiedDefaultLinkModel from './base-components/ModifiedDefaultLinkModel';
 
 // https://github.com/projectstorm/react-diagrams/issues/325 : Changing Link Color
 export class AdvancedLinkModel extends ModifiedDefaultLinkModel {
@@ -26,54 +21,13 @@ export class AdvancedLinkModel extends ModifiedDefaultLinkModel {
         listener.colorChanged({ ...event, color });
       }
     });
-
-    // console.log('AdvancedLinkModel this:', this);
-    // this.addLabel(`${this.sourcePort.label} ->`);
   }
-
-  // remove() {
-  //   this.iterateListeners((listener, event) => {
-  //     if (listener.entityRemoved) {
-  //       listener.entityRemoved(event);
-  //     }
-  //   });
-  // }
-
-  // iterateListeners(cb: (t: any, event: BaseEvent) => any) {
-  //   const event: BaseEvent = {
-  //     id: Toolkit.UID(),
-  //     firing: true,
-  //     entity: this,
-  //     stopPropagation: () => {
-  //       event.firing = false;
-  //     },
-  //   };
-
-  //   for (let i = 0; i < this.listeners.length; i += 1) {
-  //     if (this.listeners.hasOwnProperty(i)) {
-  //       // propagation stopped
-  //       if (!event.firing) {
-  //         return;
-  //       }
-  //       cb(this.listeners[i], event);
-  //     }
-  //   }
-  // }
 }
 
 export class AdvancedPortModel extends DefaultPortModel {
   createLinkModel(): AdvancedLinkModel {
     return new AdvancedLinkModel();
   }
-
-  // link(port: PortModel): LinkModel {
-  //   const link = this.createLinkModel();
-  //   link.setSourcePort(this);
-  //   link.setTargetPort(port);
-  //   link.addLabel(`${this.sourcePort.label} -> ${link.targetPort.label}`);
-  //   console.log('AdvancedPortModel link:', link);
-  //   return link;
-  // }
 
   canLinkToPort = () => true;
 }
@@ -90,8 +44,6 @@ export class AdvancedLinkFactory extends DefaultLinkFactory {
 
   generateLinkSegment(model: AdvancedLinkModel, widget: DefaultLinkWidget,
     selected: boolean, path: string) {
-    // console.log('AdvancedLinkModel model:', model);
-    // model.addLabel(`${model.sourcePort.label} ->`);
     return (
       <path
         className={selected ? widget.bem('--path-selected') : ''}

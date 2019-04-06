@@ -5,7 +5,6 @@ import App from '../App';
 import TrayItemWidget from './TrayItemWidget';
 import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 import ModifiedDiagramWidget from './ModifiedDiagramWidget';
-// import { traverseBotTree } from '../helpers/helpers';
 
 export type BodyWidgetProps = {
   app: App;
@@ -89,8 +88,6 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
                 .getDiagramModel()
                 .addNode(node);
               this.forceUpdate();
-
-              // traverseBotTree(app.getBotRoot());
             }}
             onDragOver={(event) => {
               event.preventDefault();

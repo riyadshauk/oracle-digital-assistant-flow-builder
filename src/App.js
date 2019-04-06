@@ -16,8 +16,6 @@ import SetVariableNodeFactory from './bot-components/setVariable/SetVariableNode
 import SystemOutputNodeFactory from './bot-components/systemOutput/SystemOutputNodeFactory';
 import CopyVariablesNodeFactory from './bot-components/copyVariables/CopyVariablesNodeFactory';
 import IntentNodeFactory from './bot-components/intent/IntentNodeFactory';
-import DigitalAssistantRootNodeModel from './bot-components/digitalAssistantRoot/DigitalAssistantRootNodeModel';
-import DigitalAssistantRootNodeFactory from './bot-components/digitalAssistantRoot/DigitalAssistantRootNodeFactory';
 
 /**
  * @author Dylan Vorster
@@ -42,17 +40,12 @@ export default class App {
     this.diagramEngine.registerNodeFactory(new SystemOutputNodeFactory());
     this.diagramEngine.registerNodeFactory(new CopyVariablesNodeFactory());
     this.diagramEngine.registerNodeFactory(new IntentNodeFactory());
-    this.diagramEngine.registerNodeFactory(new DigitalAssistantRootNodeFactory());
     this.newModel();
   }
 
   newModel() {
     this.activeModel = new DiagramModel();
     this.diagramEngine.setDiagramModel(this.activeModel);
-
-    // this.botRoot = new DigitalAssistantRootNodeModel();
-    // this.botRoot.setPosition(300, 50);
-    // this.activeModel.addAll(this.botRoot);
   }
 
   getActiveDiagram(): DiagramModel {
@@ -61,9 +54,5 @@ export default class App {
 
   getDiagramEngine(): DiagramEngine {
     return this.diagramEngine;
-  }
-
-  getBotRoot(): DigitalAssistantRootNodeModel {
-    return this.botRoot;
   }
 }
