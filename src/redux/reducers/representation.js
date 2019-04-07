@@ -27,6 +27,8 @@ const initialState = {
   },
 };
 
+const idToName = {};
+
 const stateNameToCount = {};
 const generateNextStateNameCount = (stateName: string) => {
   if (Object.prototype.hasOwnProperty.call(stateNameToCount, [stateName])) {
@@ -44,9 +46,12 @@ export default (state: typeof initialState = initialState,
     case ADD_STATE: {
       const newState: State = action.payload.state;
       const newStateName: string = action.payload.name;
+      const newStateId: string = action.payload.id;
       const nextState = { ...state };
+      const count = generateNextStateNameCount(newStateName);
+      idToName[newStateId] = newStateName + count;
       nextState.representation.states[
-        newStateName + generateNextStateNameCount(newStateName)
+        idToName[newStateId]
       ] = newState;
       return nextState;
     }
@@ -100,9 +105,24 @@ export default (state: typeof initialState = initialState,
       };
     }
     case ADD_TRANSITION: {
-      const { sourceState, targetState } = action.payload;
+      const { sourceID, targetID, sourceActionName } = action.payload;
       const nextState = { ...state };
-      nextState.representation.states[sourceState.name] = targetState.name;
+      if (sourceActionName === 'variable') { // @todo handle this before it gets to redux?
+        return nextState;
+      }
+      const sourceState: State = nextState.representation.states[idToName[sourceID]];
+      let actualActionName = sourceActionName;
+      switch (sourceState.component) {
+        case 'System.ConditionExists':
+          actualActionName = sourceActionName === 'true' ? 'exists' : 'notexists';
+          break;
+        case 'System.ConditionEquals':
+          actualActionName = sourceActionName === 'true' ? 'equal' : 'notequal';
+          break;
+        default:
+          break;
+      }
+      sourceState.transitions.actions[actualActionName] = idToName[targetID];
       return nextState;
     }
     case RENAME_STATE: {

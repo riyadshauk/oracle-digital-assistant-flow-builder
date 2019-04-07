@@ -35,7 +35,6 @@ export default class extends
   BaseWidget<ConditionExistsNodeWidgetProps, ConditionExistsNodeWidgetState> {
   constructor(props: ConditionExistsNodeWidgetProps) {
     super('srd-default-node', props);
-    console.log('ConditionExists constructor invoked');
     this.state = {
       representation: {
         component: 'System.ConditionExists',
@@ -51,9 +50,10 @@ export default class extends
       },
       name: 'System.ConditionExists.Name',
     };
-    const { addState } = props;
+    const { addState, node } = props;
+    const { id } = node;
     const newStateName = 'System.ConditionExists.Name';
-    addState(this.state.representation, newStateName);
+    addState(this.state.representation, newStateName, id);
   }
 
   generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />

@@ -9,6 +9,8 @@ import {
   DefaultLinkModel,
   PortModel,
 } from 'storm-react-diagrams';
+import { addTransition } from '../redux/actions';
+import store from '../redux/store';
 
 export interface DefaultLinkModelListener extends LinkModelListener {
   colorChanged?: (event: BaseEvent<DefaultLinkModel> & { color: null | string }) => void;
@@ -22,13 +24,7 @@ export interface DefaultLinkModelListener extends LinkModelListener {
  * This class decorates and overrides some methods derived from LinkModel
  * (which is extended by DefaultLinkModel).
  *
- * DISCLAIMER: I understand that extending React components is heavily discouraged in the
- * React/Facebook community; however, the storm-react-diagrams library was built in a way that
- * highly encourages extending React components. To avoid massive code duplication, I've decided
- * to follow along with this (anti?)-pattern here.
- *
- * I may want to fix this issue in the future (maybe creating a PR to storm-react-diagrams?)
- * @see https://reactjs.org/docs/composition-vs-inheritance.html
+ * Also, note that this is not a React component, nor is it extending a React component.
  */
 export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLinkModelListener> {
   constructor(type: string = 'default') {
@@ -47,6 +43,14 @@ export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLi
     // this.addLabel(`${this.sourcePort.parent.name}.${this.sourcePort.label} -–> ${this.targetPort.parent.name}.${this.targetPort.label}`);
     // $FlowFixMe
     this.addLabel(`${this.sourcePort.label} ––> ${this.targetPort.label}`);
+
+    store.dispatch(
+      addTransition({
+        sourceID: this.sourcePort.parent.id,
+        targetID: this.targetPort.parent.id,
+        sourceActionName: this.sourcePort.label,
+      }),
+    );
   }
 
   setSourcePort(port: PortModel) {

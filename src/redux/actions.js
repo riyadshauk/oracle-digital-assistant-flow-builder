@@ -11,11 +11,11 @@ import {
   type State, type ContextVariable,
 } from './representationTypes';
 
-export const addState = (state: State, name: string) => {
+export const addState = (state: State, name: string, id: string) => {
   console.log('addState invoked with state:', state);
   return {
     type: ADD_STATE,
-    payload: { state, name },
+    payload: { state, name, id },
   };
 };
 export const addContextVariable = (variable: ContextVariable) => {
@@ -37,13 +37,9 @@ export const addParameter = (param: { [key: string | number]: any }) => ({
   type: ADD_PARAMETER,
   payload: { param },
 });
-/**
- * @todo use this action when creating links on the diagram (to map diagram link
- * to transition in resulting Flow representation)
- */
-export const addTransition = (sourceState: State, targetState: State) => ({
+export const addTransition = (payload: { sourceID: number, targetID: number }) => ({
   type: ADD_TRANSITION,
-  payload: { sourceState, targetState },
+  payload,
 });
 
 
