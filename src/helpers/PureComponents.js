@@ -58,6 +58,9 @@ export const VariableNameComponentNodeForm = (thisWidget: BaseWidget,
 export const DefaultComponentNodeBody = (node: NodeModel, thisWidget: BaseWidget) => (
   <div {...thisWidget.getProps()} style={{ background: node.color }}>
     <div className={thisWidget.bem('__title')}>
+      <div className={thisWidget.bem('__name')}>{thisWidget.state.name}</div>
+    </div>
+    <div className={thisWidget.bem('__title')}>
       <div className={thisWidget.bem('__name')}>{node.name}</div>
     </div>
     <div className={thisWidget.bem('__ports')}>
@@ -74,6 +77,9 @@ export const DefaultComponentNodeBody = (node: NodeModel, thisWidget: BaseWidget
 export const DefaultComponentNodeBodyWithOneSpecialInPort = (node: NodeModel,
   thisWidget: BaseWidget) => (
     <div {...thisWidget.getProps()} style={{ background: node.color }}>
+      <div className={thisWidget.bem('__title')}>
+        <div className={thisWidget.bem('__name')}>{thisWidget.state.name}</div>
+      </div>
       <div className={thisWidget.bem('__title')}>
         <div className={thisWidget.bem('__name')}>{node.name}</div>
         <div className={thisWidget.bem('__in')}>

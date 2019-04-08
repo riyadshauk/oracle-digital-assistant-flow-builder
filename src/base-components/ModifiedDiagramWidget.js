@@ -32,6 +32,8 @@ import {
   BaseWidgetProps,
   DiagramWidget,
 } from 'storm-react-diagrams';
+import store from '../redux/store';
+import { removeState, removeAction } from '../redux/actions';
 
 export interface DiagramProps extends BaseWidgetProps {
   diagramEngine: DiagramEngine;
@@ -191,6 +193,16 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
       _.forEach(this.props.diagramEngine.getDiagramModel().getSelectedItems(), (element) => {
         // only delete items which are not locked
         if (!this.props.diagramEngine.isModelLocked(element)) {
+          // dispatch any removal actions here (ie: removeState, removeAction, etc)
+          console.log('element:', element);
+          store.dispatch(removeState(element.id));
+          if (Object.prototype.hasOwnProperty.call(element, 'sourcePort')
+            && Object.prototype.hasOwnProperty.call(element, 'targetPort')
+          ) {
+            store.dispatch(
+              removeAction(element.sourcePort.parent.id, element.targetPort.parent.id),
+            );
+          }
           element.remove();
         }
       });

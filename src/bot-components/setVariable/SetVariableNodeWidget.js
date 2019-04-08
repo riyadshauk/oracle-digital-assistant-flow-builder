@@ -1,12 +1,14 @@
 // @flow
 import * as React from 'react';
-import { NodeModel, BaseWidget, DefaultPortLabel } from 'storm-react-diagrams';
+import { BaseWidget } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { registerNotEditable } from '../../helpers/helpers';
 import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
+import store from '../../redux/store';
 
 export interface SetVariableNodeWidgetProps {
   node: AdvancedNodeModel;
+  addState: Function;
 }
 
 export interface SetVariableNodeWidgetState {
@@ -18,10 +20,6 @@ export interface SetVariableNodeWidgetState {
  */
 export default class SetVariableNodeWidget extends
   BaseWidget<SetVariableNodeWidgetProps, SetVariableNodeWidgetState> {
-  static defaultProps: SetVariableNodeWidgetProps = {
-    node: NodeModel,
-  };
-
   constructor(props: SetVariableNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
@@ -30,19 +28,42 @@ export default class SetVariableNodeWidget extends
       isEditing: {},
       prevPropertyName: '',
       notEditable: {},
+      representation: {
+        component: 'System.SetVariable',
+        properties: {
+          from: '',
+          to: '',
+        },
+        transitions: {
+          next: '',
+        },
+      },
+      name: '',
     };
+    const { addState, node } = props;
+    const { id } = node;
+    const stateNamePrefix = 'SetVariable';
+    addState(this.state.representation, stateNamePrefix, id);
   }
 
-  generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />
-
-  isEditing = () => Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   componentWillMount() {
     const { node } = this.props;
-    node.addInPort(' ');
+    node.addInPort('IN');
+    node.addOutPort('OUT');
     node.addInPort('variable');
-    registerNotEditable.apply(this, [' ', 'variable']);
+    registerNotEditable.apply(this, ['IN', 'OUT', 'variable']);
     node.addInPort('value –– ');
+  }
+
+  componentDidMount() {
+    const { node } = this.props;
+    this.unsubscribe = store.subscribe(() => {
+      this.setState({ name: store.getState().representation.idToName[node.id] });
+    });
   }
 
   render() {

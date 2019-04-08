@@ -4,7 +4,7 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import SystemOutputNodeWidget from './SystemOutputNodeWidget';
+import SystemOutputNodeWidget from '../../redux/containers/output';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export default class extends AbstractNodeFactory {

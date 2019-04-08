@@ -1,11 +1,11 @@
 // @flow
 import * as React from 'react';
-import * as _ from 'lodash';
 import {
   BaseWidget,
-  DefaultPortLabel,
 } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
+import { DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
+import store from '../../redux/store';
 
 export interface ConditionExistsNodeWidgetProps {
   node: AdvancedNodeModel;
@@ -48,46 +48,38 @@ export default class extends
           },
         },
       },
-      name: 'System.ConditionExists.Name',
+      name: '',
     };
     const { addState, node } = props;
     const { id } = node;
-    const newStateName = 'System.ConditionExists.Name';
-    addState(this.state.representation, newStateName, id);
+    const stateNamePrefix = 'Exists';
+    addState(this.state.representation, stateNamePrefix, id);
   }
 
-  generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />
-
-  isEditing = () => Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   componentWillMount() {
     const { node } = this.props;
-    node.addInPort(' ');
+    node.addInPort('IN');
     node.addInPort('variable');
     node.addInPort('true');
     node.addInPort('false');
+  }
+
+  componentDidMount() {
+    const { node } = this.props;
+    this.unsubscribe = store.subscribe(() => {
+      this.setState({ name: store.getState().representation.idToName[node.id] });
+    });
   }
 
   render() {
     const { node } = this.props;
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        <div {...this.getProps()} style={{ background: node.color }}>
-          <div className={this.bem('__title')}>
-            <div className={this.bem('__name')}>{node.name}</div>
-            <div className={this.bem('__in')}>
-              {this.generatePort(node.getInPorts()[0])}
-            </div>
-          </div>
-          <div className={this.bem('__ports')}>
-            <div className={this.bem('__in')}>
-              {_.map(node.getInPorts(), this.generatePort).slice(1)}
-            </div>
-            <div className={this.bem('__out')}>
-              {_.map(node.getOutPorts(), this.generatePort)}
-            </div>
-          </div>
-        </div>
+        {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this])}
       </div>
     );
   }

@@ -11,7 +11,12 @@ import {
 
 export function registerNotEditable(...variableNames: string[]) {
   variableNames.forEach((variableName) => {
-    this.state.notEditable[variableName] = true;
+    this.setState(prevState => ({
+      notEditable: {
+        ...prevState.notEditable,
+        [variableName]: true,
+      },
+    }));
   });
 }
 
@@ -71,12 +76,12 @@ export function updateLabel(
   }
   const ports = node.getInPorts();
   const re = RegExp(`${propertyName} –– `, 'g');
-  for (let i = 0; i < ports.length; i += 1) {
-    const portName = ports[i].label;
+  ports.forEach((port) => {
+    const portName = port.label;
     const occurrences = portName.match(re);
     if (occurrences !== undefined && occurrences && occurrences.length === 1) {
       if (typeof renameContextVariable === 'function') {
-        const prevVals = ports[i].label.split(' –– ');
+        const prevVals = portName.split(' –– ');
         console.log('prevVals:', prevVals);
         console.log('propertyName, propertyValue:', propertyName, propertyValue);
         renameContextVariable({
@@ -85,11 +90,16 @@ export function updateLabel(
         });
       }
 
-      ports[i].label = `${propertyName} –– ${propertyValue}`;
-      this.state.isEditing[ports[i].name] = false;
-      break;
+      port.label = `${propertyName} –– ${propertyValue}`;
+      this.setState(prevState => ({
+        isEditing: {
+          ...prevState.isEditing,
+          [port.name]: false,
+        },
+      }));
+      // break; // @todo end forEach early? overkill?
     }
-  }
+  });
   if (typeof addContextVariable === 'function') {
     addContextVariable({ name: propertyName, entityType: propertyValue });
   }
@@ -112,15 +122,20 @@ export function updateRawLabel() {
   }
   const ports = node.getInPorts();
   const re = RegExp(`${propertyName}`, 'g');
-  for (let i = 0; i < ports.length; i += 1) {
-    const portName = ports[i].label;
+  ports.forEach((port) => {
+    const portName = port.label;
     const occurrences = portName.match(re);
     if (occurrences !== undefined && occurrences && occurrences.length === 1) {
-      ports[i].label = propertyName;
-      this.state.isEditing[ports[i].name] = false;
-      break;
+      port.label = propertyName;
+      this.setState(prevState => ({
+        isEditing: {
+          ...prevState.isEditing,
+          [port.name]: false,
+        },
+      }));
+      // break;
     }
-  }
+  });
 }
 
 export function updatePropertyName(event: SyntheticInputEvent<EventTarget>) {
@@ -137,10 +152,21 @@ export function isEditing() {
 
 export function editClicked(port: any) {
   if (isEditing.apply(this)) {
-    this.state.isEditing[port.props.name] = false;
+    this.setState(prevState => ({
+      isEditing: {
+        ...prevState.isEditing,
+        [port.props.name]: false,
+      },
+    }));
+
     this.forceUpdate();
   } else {
-    this.state.isEditing[port.props.name] = true;
+    this.setState(prevState => ({
+      isEditing: {
+        ...prevState.isEditing,
+        [port.props.name]: true,
+      },
+    }));
     const { label } = port.props.node.ports[port.props.name];
     const vals = label.split('––');
     const propertyName = vals[0].trim();
@@ -152,7 +178,7 @@ export function editClicked(port: any) {
 export function generatePort(port: any) {
   // eslint-disable-next-line react/no-this-in-sfc
   const { notEditable } = this.state;
-  if (notEditable[port.label]) {
+  if (typeof notEditable !== 'object' || notEditable[port.label]) {
     return <DefaultPortLabel model={port} key={port.id} />;
   }
   return (

@@ -4,7 +4,7 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import SetVariableNodeWidget from './SetVariableNodeWidget';
+import SetVariableNodeWidget from '../../redux/containers/setVariable';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export default class extends AbstractNodeFactory {

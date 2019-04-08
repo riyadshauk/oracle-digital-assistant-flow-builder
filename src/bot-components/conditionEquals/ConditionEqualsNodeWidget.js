@@ -1,12 +1,14 @@
 // @flow
 import * as React from 'react';
-import { NodeModel, BaseWidget, DefaultPortLabel } from 'storm-react-diagrams';
+import { NodeModel, BaseWidget } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 import { registerNotEditable } from '../../helpers/helpers';
+import store from '../../redux/store';
 
 export interface ConditionEqualsNodeWidgetProps {
   node: AdvancedNodeModel;
+  addState: Function;
 }
 
 export interface ConditionEqualsNodeWidgetState {
@@ -22,6 +24,7 @@ export interface ConditionEqualsNodeWidgetState {
         notequal: string,
       },
     },
+    name: string,
   };
   notEditable: {};
 }
@@ -31,10 +34,6 @@ export interface ConditionEqualsNodeWidgetState {
  */
 export default class ConditionEqualsNodeWidget extends
   BaseWidget<ConditionEqualsNodeWidgetProps, ConditionEqualsNodeWidgetState> {
-  static defaultProps: ConditionEqualsNodeWidgetProps = {
-    node: NodeModel,
-  };
-
   constructor(props: ConditionEqualsNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
@@ -56,22 +55,36 @@ export default class ConditionEqualsNodeWidget extends
           },
         },
       },
+      name: '',
     };
+    const { addState, node } = props;
+    const { id } = node;
+    const stateNamePrefix = 'Equals';
+    addState(this.state.representation, stateNamePrefix, id);
   }
-
-  generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />
 
   isEditing = () => Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
 
   componentWillMount() {
     const { node } = this.props;
-    node.addInPort(' ');
+    node.addInPort('IN');
     node.addInPort('variable');
     node.addInPort('value –– ');
     node.addInPort('true');
     node.addInPort('false');
 
-    registerNotEditable.apply(this, [' ', 'variable', 'true', 'false']);
+    registerNotEditable.apply(this, ['IN', 'variable', 'true', 'false']);
+  }
+
+  componentDidMount() {
+    const { node } = this.props;
+    this.unsubscribe = store.subscribe(() => {
+      this.setState({ name: store.getState().representation.idToName[node.id] });
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   render() {

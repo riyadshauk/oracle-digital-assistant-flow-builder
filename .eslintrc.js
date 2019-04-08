@@ -16,5 +16,6 @@ module.exports = {
         allow: ['addContextVariable', 'renameContextVariable'],
       },
     ],
+    'no-param-reassign': ['error', { 'props': false, }],
   },
 };

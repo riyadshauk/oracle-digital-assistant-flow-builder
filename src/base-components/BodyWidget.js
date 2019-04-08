@@ -39,7 +39,7 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
             <TrayItemWidget model={{ type: 'intent' }} name="Intent" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'default-component' }} name="Default Component" color="rgb(0,192,255)" />
+            {/* <TrayItemWidget model={{ type: 'default-component' }} name="Default Component" color="rgb(0,192,255)" /> */}
           </TrayWidget>
           <div
             className="diagram-layer"

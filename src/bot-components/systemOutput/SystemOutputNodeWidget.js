@@ -1,12 +1,13 @@
 // @flow
 import * as React from 'react';
-import { NodeModel, BaseWidget, DefaultPortLabel } from 'storm-react-diagrams';
+import { BaseWidget } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { registerNotEditable } from '../../helpers/helpers';
 import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 
 export interface SystemOutputNodeWidgetProps {
   node: AdvancedNodeModel;
+  addState: Function;
 }
 
 export interface SystemOutputNodeWidgetState {
@@ -18,10 +19,6 @@ export interface SystemOutputNodeWidgetState {
  */
 export default class SystemOutputNodeWidget extends
   BaseWidget<SystemOutputNodeWidgetProps, SystemOutputNodeWidgetState> {
-  static defaultProps: SystemOutputNodeWidgetProps = {
-    node: NodeModel,
-  };
-
   constructor(props: SystemOutputNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
@@ -30,17 +27,29 @@ export default class SystemOutputNodeWidget extends
       isEditing: {},
       prevPropertyName: '',
       notEditable: {},
+      representation: {
+        component: 'System.Output',
+        properties: {
+          text: '',
+        },
+        transitions: {
+          next: '',
+        },
+      },
     };
+    const { addState, node } = props;
+    const { id } = node;
+    const newStateName = 'System.Output.Name';
+    addState(this.state.representation, newStateName, id);
   }
-
-  generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />
 
   isEditing = () => Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
 
   componentWillMount() {
     const { node } = this.props;
-    node.addInPort(' ');
-    registerNotEditable.apply(this, [' ']);
+    node.addInPort('IN');
+    node.addOutPort('OUT');
+    registerNotEditable.apply(this, ['IN', 'OUT']);
     node.addInPort('text –– ');
   }
 

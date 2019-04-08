@@ -1,12 +1,14 @@
 // @flow
 import * as React from 'react';
-import { NodeModel, BaseWidget, DefaultPortLabel } from 'storm-react-diagrams';
+import { BaseWidget } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { registerNotEditable } from '../../helpers/helpers';
 import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
+import store from '../../redux/store';
 
 export interface CopyVariablesNodeWidgetProps {
   node: AdvancedNodeModel;
+  addState: Function;
 }
 
 export interface CopyVariablesNodeWidgetState {
@@ -18,10 +20,6 @@ export interface CopyVariablesNodeWidgetState {
  */
 export default class CopyVariablesNodeWidget extends
   BaseWidget<CopyVariablesNodeWidgetProps, CopyVariablesNodeWidgetState> {
-  static defaultProps: CopyVariablesNodeWidgetProps = {
-    node: NodeModel,
-  };
-
   constructor(props: CopyVariablesNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
@@ -30,27 +28,50 @@ export default class CopyVariablesNodeWidget extends
       isEditing: {},
       prevPropertyName: '',
       notEditable: {},
+      representation: {
+        component: 'System.CopyVariables',
+        properties: {
+          from: '',
+          to: '',
+        },
+        transitions: {
+          next: '',
+        },
+      },
+      name: '',
     };
+    const { addState, node } = props;
+    const { id } = node;
+    const stateNamePrefix = 'CopyVariables';
+    addState(this.state.representation, stateNamePrefix, id);
   }
 
-  generatePort = (port: any) => <DefaultPortLabel model={port} key={port.id} />
-
-  isEditing = () => Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   componentWillMount() {
     const { node } = this.props;
-    node.addInPort(' ');
-    registerNotEditable.apply(this, [' ']);
+    node.addInPort('IN');
+    node.addOutPort('OUT');
+    registerNotEditable.apply(this, ['IN', 'OUT']);
     node.addInPort('from –– ');
     node.addInPort('to –– ');
+  }
+
+  componentDidMount() {
+    const { node } = this.props;
+    this.unsubscribe = store.subscribe(() => {
+      this.setState({ name: store.getState().representation.idToName[node.id] });
+    });
   }
 
   render() {
     const { node } = this.props;
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        { DefaultComponentNodeForm.apply(this, [this]) }
-        { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
+        {DefaultComponentNodeForm.apply(this, [this])}
+        {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this])}
       </div>
     );
   }

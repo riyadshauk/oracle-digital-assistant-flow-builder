@@ -1,11 +1,13 @@
 // @flow
 import {
   // eslint-disable-next-line max-len
-  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_PARAMETER, ADD_TRANSITION,
+  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_PARAMETER, ADD_ACTION, ADD_TRANSITION,
   // eslint-disable-next-line max-len
   RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_PARAMETER,
   // eslint-disable-next-line max-len
-  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_PARAMETER, REMOVE_TRANSITION,
+  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_PARAMETER, REMOVE_ACTION,
+  // eslint-disable-next-line max-len
+  GET_STATE_NAME,
 } from './actionTypes';
 import {
   type State, type ContextVariable,
@@ -37,7 +39,19 @@ export const addParameter = (param: { [key: string | number]: any }) => ({
   type: ADD_PARAMETER,
   payload: { param },
 });
-export const addTransition = (payload: { sourceID: number, targetID: number }) => ({
+export const addAction = (payload: {
+  sourceID: number,
+  targetID: number,
+  sourceActionName: string,
+  targetLabelName: string,
+}) => ({
+  type: ADD_ACTION,
+  payload,
+});
+export const addTransition = (payload: {
+  sourceID: number,
+  targetID: number,
+}) => ({
   type: ADD_TRANSITION,
   payload,
 });
@@ -54,6 +68,10 @@ export const renameContextVariable = (
 };
 
 
+export const removeState = (id: string) => ({
+  type: REMOVE_STATE,
+  payload: { id },
+});
 export const removeContextVariable = (variable: ContextVariable) => {
   console.log('removeContextVariable invoked, variable:', variable);
   return {
@@ -61,11 +79,11 @@ export const removeContextVariable = (variable: ContextVariable) => {
     payload: { variable },
   };
 };
-/**
- * @todo use this action when removing links on the diagram (to map diagram link
- * to transition in resulting Flow representation)
- */
-export const removeTransition = (sourceState: State, targetState: State) => ({
-  type: REMOVE_TRANSITION,
-  payload: { sourceState, targetState },
+export const removeAction = (sourceID: string, targetID: string) => ({
+  type: REMOVE_ACTION,
+  payload: { sourceID, targetID },
+});
+export const removeTransition = (sourceID: string, targetID: string) => ({
+  type: REMOVE_ACTION, // removing a transition is the same logic as removing an action
+  payload: { sourceID, targetID },
 });

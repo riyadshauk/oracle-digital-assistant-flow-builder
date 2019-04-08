@@ -9,7 +9,7 @@ import {
   DefaultLinkModel,
   PortModel,
 } from 'storm-react-diagrams';
-import { addTransition } from '../redux/actions';
+import { addAction, addTransition } from '../redux/actions';
 import store from '../redux/store';
 
 export interface DefaultLinkModelListener extends LinkModelListener {
@@ -44,13 +44,23 @@ export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLi
     // $FlowFixMe
     this.addLabel(`${this.sourcePort.label} ––> ${this.targetPort.label}`);
 
-    store.dispatch(
-      addTransition({
-        sourceID: this.sourcePort.parent.id,
-        targetID: this.targetPort.parent.id,
-        sourceActionName: this.sourcePort.label,
-      }),
-    );
+    if (this.sourcePort.label === 'OUT' && this.targetPort.label === 'IN') {
+      store.dispatch(
+        addTransition({
+          sourceID: this.sourcePort.parent.id,
+          targetID: this.targetPort.parent.id,
+        }),
+      );
+    } else {
+      store.dispatch(
+        addAction({
+          sourceID: this.sourcePort.parent.id,
+          targetID: this.targetPort.parent.id,
+          sourceActionName: this.sourcePort.label,
+          targetLabelName: this.targetPort.label.substring(0, this.targetPort.label.indexOf(' –– ')),
+        }),
+      );
+    }
   }
 
   setSourcePort(port: PortModel) {

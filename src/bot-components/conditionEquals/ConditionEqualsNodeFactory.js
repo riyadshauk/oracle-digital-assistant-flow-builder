@@ -4,7 +4,7 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import ConditionEqualsNodeWidget from './ConditionEqualsNodeWidget';
+import ConditionEqualsNodeWidget from '../../redux/containers/equals';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export default class extends AbstractNodeFactory {
