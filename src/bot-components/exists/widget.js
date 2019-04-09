@@ -7,12 +7,12 @@ import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 import store from '../../redux/store';
 
-export interface ConditionExistsNodeWidgetProps {
+export interface ExistsNodeWidgetProps {
   node: AdvancedNodeModel;
   addState: Function;
 }
 
-export interface ConditionExistsNodeWidgetState {
+export interface ExistsNodeWidgetState {
   representation: {
     component: 'System.ConditionExists',
     properties: {
@@ -31,9 +31,9 @@ export interface ConditionExistsNodeWidgetState {
 /**
  * @author Riyad Shauk
  */
-export default class extends
-  BaseWidget<ConditionExistsNodeWidgetProps, ConditionExistsNodeWidgetState> {
-  constructor(props: ConditionExistsNodeWidgetProps) {
+export default class ExistsNodeWidget extends
+  BaseWidget<ExistsNodeWidgetProps, ExistsNodeWidgetState> {
+  constructor(props: ExistsNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
       representation: {
@@ -49,11 +49,15 @@ export default class extends
         },
       },
       name: '',
+      isEditingTitle: false,
+      nameBeforeEditTitleClicked: '',
     };
     const { addState, node } = props;
     const { id } = node;
     const stateNamePrefix = 'Exists';
     addState(this.state.representation, stateNamePrefix, id);
+    this.state.name = store.getState().representation.idToName[node.id];
+    this.state.nameBeforeEditTitleClicked = this.state.name;
   }
 
   componentWillUnmount() {

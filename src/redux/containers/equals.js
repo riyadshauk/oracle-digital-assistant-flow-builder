@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import ConditionEqualsNodeWidget from '../../bot-components/conditionEquals/ConditionEqualsNodeWidget';
+import EqualsNodeWidget from '../../bot-components/equals/widget';
 import { addState } from '../actions';
 
 const actionCreators = {
   addState,
 };
 
-export default connect(null, actionCreators)(ConditionEqualsNodeWidget);
+export default connect(null, actionCreators)(EqualsNodeWidget);

@@ -194,7 +194,6 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
         // only delete items which are not locked
         if (!this.props.diagramEngine.isModelLocked(element)) {
           // dispatch any removal actions here (ie: removeState, removeAction, etc)
-          console.log('element:', element);
           store.dispatch(removeState(element.id));
           if (Object.prototype.hasOwnProperty.call(element, 'sourcePort')
             && Object.prototype.hasOwnProperty.call(element, 'targetPort')
@@ -298,7 +297,6 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
             )
           ) {
             // link is a duplicate
-            console.log('link:', link);
             // link.remove();
           }
         }

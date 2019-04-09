@@ -4,20 +4,20 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import SetVariableNodeWidget from '../../redux/containers/setVariable';
+import IntentNodeWidget from '../../redux/containers/intent';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
-export default class extends AbstractNodeFactory {
+export default class IntentNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('set-variable');
+    super('intent');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <SetVariableNodeWidget node={node} />;
+    return <IntentNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'set-variable');
+    return new AdvancedNodeModel(undefined, undefined, 'intent');
   }
 }

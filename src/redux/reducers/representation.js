@@ -2,14 +2,15 @@
 import { dump } from 'js-yaml';
 import {
   // eslint-disable-next-line max-len
-  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_PARAMETER, ADD_ACTION, ADD_TRANSITION,
+  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_VARIABLE, ADD_ACTION, ADD_TRANSITION,
   // eslint-disable-next-line max-len
-  RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_PARAMETER,
+  RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_VARIABLE_VALUE,
   // eslint-disable-next-line max-len
-  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_PARAMETER, REMOVE_ACTION,
+  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_VARIABLE, REMOVE_ACTION,
+  UPDATE_COMPONENT_TYPE,
 } from '../actionTypes';
 import {
-  type State, type ContextVariable, type RepresentationStore,
+  type State, type Variable, type RepresentationStore,
 } from '../representationTypes';
 
 const initialStore = {
@@ -29,13 +30,19 @@ const initialStore = {
   stateNameToCount: {},
 };
 
-const generateNextStoreNameCount = (store: RepresentationStore, StoreName: string) => {
-  if (Object.prototype.hasOwnProperty.call(store.stateNameToCount, [StoreName])) {
-    store.stateNameToCount[StoreName] += 1;
+const generateNextStateNameCount = (store: RepresentationStore, stateName: string) => {
+  if (Object.prototype.hasOwnProperty.call(store.stateNameToCount, [stateName])) {
+    let count = store.stateNameToCount[stateName];
+    let proposedName = stateName + count;
+    while (Object.prototype.hasOwnProperty.call(store.representation.states, proposedName)) {
+      count += 1;
+      proposedName = stateName + count;
+    }
+    store.stateNameToCount[stateName] = count;
   } else {
-    store.stateNameToCount[StoreName] = 1;
+    store.stateNameToCount[stateName] = 1;
   }
-  return store.stateNameToCount[StoreName];
+  return store.stateNameToCount[stateName];
 };
 
 export default (store: RepresentationStore = initialStore,
@@ -47,7 +54,7 @@ export default (store: RepresentationStore = initialStore,
       const stateName: string = action.payload.name;
       const stateId: string = action.payload.id;
       const nextStore = { ...store };
-      const count = generateNextStoreNameCount(store, stateName);
+      const count = generateNextStateNameCount(store, stateName);
       store.idToName[stateId] = stateName + count;
       nextStore.representation.states[
         store.idToName[stateId]
@@ -56,7 +63,7 @@ export default (store: RepresentationStore = initialStore,
     }
     case ADD_CONTEXT_VARIABLE: {
       const { variable } = action.payload;
-      const { name, entityType } = (variable: ContextVariable);
+      const { name, value } = (variable: Variable);
       return {
         ...store,
         representation: {
@@ -64,7 +71,7 @@ export default (store: RepresentationStore = initialStore,
           context: {
             variables: {
               ...store.representation.context.variables,
-              ...{ [name]: entityType },
+              ...{ [name]: value },
             },
           },
         },
@@ -90,7 +97,7 @@ export default (store: RepresentationStore = initialStore,
         },
       };
     }
-    case ADD_PARAMETER: {
+    case ADD_VARIABLE: {
       const { param } = action.payload;
       return {
         ...store,
@@ -161,15 +168,46 @@ export default (store: RepresentationStore = initialStore,
       return nextStore;
     }
     case RENAME_STATE: {
-      return {
-        ...store,
-      };
+      const nextStore = { ...store };
+      const { oldName, newName } = action.payload;
+      const state = { ...nextStore.representation.states[oldName] };
+      // disallow duplicate state names
+      if (Object.prototype.hasOwnProperty.call(nextStore.representation.states, newName)) {
+        return nextStore;
+      }
+      // update state name in idToName
+      Object.entries(nextStore.idToName).forEach((entry) => {
+        const id = entry[0];
+        const name = entry[1];
+        if (name === oldName) {
+          nextStore.idToName[id] = newName;
+        }
+      });
+      delete nextStore.representation.states[oldName];
+      nextStore.representation.states[newName] = state;
+      return nextStore;
     }
     case RENAME_CONTEXT_VARIABLE: {
       const { prev, cur } = action.payload;
       const nextStore = { ...store };
       delete nextStore.representation.context.variables[prev.name];
-      nextStore.representation.context.variables[cur.name] = cur.entityType;
+      // disallow duplicate context-variable names
+      if (Object.prototype.hasOwnProperty.call(nextStore.representation.context.variables, cur)) {
+        return nextStore;
+      }
+      nextStore.representation.context.variables[cur.name] = cur.value;
+      // fix transitions in store (variable values in states) related to changing the variable name
+      Object.values(nextStore.representation.states).forEach((state) => {
+        // eslint-disable-next-line max-len
+        // $FlowFixMe: Cannot call `Object.values(...).forEach` with function bound to `callbackfn` because property `properties` is missing in mixed [1] in the first argument.
+        const { properties } = state;
+        Object.keys(properties).forEach((property) => {
+          if (property === 'variable'
+            && properties[property] === prev.name) {
+            properties[property] = cur.name;
+          }
+        });
+      });
       return nextStore;
     }
     case RENAME_PLATFORM: {
@@ -184,11 +222,17 @@ export default (store: RepresentationStore = initialStore,
 
       };
     }
-    case RENAME_PARAMETER: {
-      return {
-        ...store,
-
-      };
+    case RENAME_VARIABLE_VALUE: {
+      const { variableName, newValue, stateName } = action.payload;
+      const nextStore = { ...store };
+      const state = nextStore.representation.states[stateName];
+      const { properties } = state;
+      Object.keys(properties).forEach((name) => {
+        if (name === variableName) {
+          properties[variableName] = newValue;
+        }
+      });
+      return nextStore;
     }
     case REMOVE_STATE: {
       const nextStore = { ...store };
@@ -196,15 +240,17 @@ export default (store: RepresentationStore = initialStore,
       Object.values(nextStore.representation.states)
         .forEach((state) => {
           // $FlowFixMe
-          const { actions } = state.transitions;
-          Object.keys(actions).forEach((actionKey) => {
-            if (actions[actionKey] === stateName) {
-              actions[actionKey] = '';
-            }
-          });
-          // $FlowFixMe
           if (state.transitions.next === stateName) {
             state.transitions.next = '';
+          }
+          // $FlowFixMe
+          const { actions } = state.transitions;
+          if (actions) {
+            Object.keys(actions).forEach((actionKey) => {
+              if (actions[actionKey] === stateName) {
+                actions[actionKey] = '';
+              }
+            });
           }
         });
       delete nextStore.representation.states[nextStore.idToName[action.payload.id]];
@@ -228,7 +274,7 @@ export default (store: RepresentationStore = initialStore,
 
       };
     }
-    case REMOVE_PARAMETER: {
+    case REMOVE_VARIABLE: {
       return {
         ...store,
 
@@ -238,20 +284,36 @@ export default (store: RepresentationStore = initialStore,
       const nextStore = { ...store };
       const { sourceID, targetID } = action.payload;
       const targetName = nextStore.idToName[targetID];
-      const { transitions } = nextStore.representation.states[nextStore.idToName[sourceID]];
+      const state = nextStore.representation.states[nextStore.idToName[sourceID]];
+      const { transitions } = state;
       const { actions } = transitions;
-      Object.entries(actions).forEach((actionEntry) => {
-        const targetNames = Object.values(actionEntry); // should really just be one element
-        targetNames.forEach((name) => {
-          if (name === targetName) {
-            actions[actionEntry[0]] = '';
-          }
-        });
-      });
       if (transitions.next === targetName) {
         // $FlowFixMe @todo why is this a Flow error?
         transitions.next = '';
       }
+      if (actions) {
+        Object.entries(actions).forEach((actionEntry) => {
+          const targetNames = Object.values(actionEntry); // should really just be one element
+          targetNames.forEach((name) => {
+            if (name === targetName) {
+              actions[actionEntry[0]] = '';
+            }
+          });
+        });
+      }
+      return nextStore;
+    }
+    case UPDATE_COMPONENT_TYPE: {
+      const nextStore = { ...store };
+      const { stateName, componentType } = action.payload;
+      console.log('UPDATE_COMPONENT_TYPE');
+      console.log('stateName:', stateName);
+      console.log('componentType:', componentType);
+      const state = nextStore.representation.states[stateName];
+      if (!state) {
+        return nextStore;
+      }
+      state.component = componentType;
       return nextStore;
     }
     default:

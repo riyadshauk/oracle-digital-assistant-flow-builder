@@ -39,7 +39,7 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
             <TrayItemWidget model={{ type: 'intent' }} name="Intent" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
-            {/* <TrayItemWidget model={{ type: 'default-component' }} name="Default Component" color="rgb(0,192,255)" /> */}
+            <TrayItemWidget model={{ type: 'default-component' }} name="General Component" color="rgb(0,192,255)" />
           </TrayWidget>
           <div
             className="diagram-layer"
@@ -73,7 +73,7 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
                   node = new AdvancedNodeModel('Copy Variables', 'rgb(0,192,255)', 'intent');
                   break;
                 case 'default-component':
-                  node = new AdvancedNodeModel('Default Component Node', 'rgb(0,192,255)', 'default-component');
+                  node = new AdvancedNodeModel('General Component', 'rgb(0,192,255)', 'general-component');
                   break;
                 default:
                   node = new AdvancedNodeModel();

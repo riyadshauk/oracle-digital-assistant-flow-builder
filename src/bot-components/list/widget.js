@@ -1,26 +1,26 @@
 // @flow
 import * as React from 'react';
 import { BaseWidget } from 'storm-react-diagrams';
-import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { registerNotEditable } from '../../helpers/helpers';
 import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
+import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import store from '../../redux/store';
 
-export interface CopyVariablesNodeWidgetProps {
+export interface ListNodeWidgetProps {
   node: AdvancedNodeModel;
   addState: Function;
 }
 
-export interface CopyVariablesNodeWidgetState {
+export interface ListNodeWidgetState {
   notEditable: {};
 }
 
 /**
  * @author Riyad Shauk
  */
-export default class CopyVariablesNodeWidget extends
-  BaseWidget<CopyVariablesNodeWidgetProps, CopyVariablesNodeWidgetState> {
-  constructor(props: CopyVariablesNodeWidgetProps) {
+export default class ListNodeWidget extends
+  BaseWidget<ListNodeWidgetProps, ListNodeWidgetState> {
+  constructor(props: ListNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
       propertyName: '',
@@ -29,21 +29,26 @@ export default class CopyVariablesNodeWidget extends
       prevPropertyName: '',
       notEditable: {},
       representation: {
-        component: 'System.CopyVariables',
+        component: 'System.List',
         properties: {
-          from: '',
-          to: '',
+          variable: '',
+          prompt: '',
+          options: '',
         },
         transitions: {
           next: '',
         },
       },
       name: '',
+      isEditingTitle: false,
+      nameBeforeEditTitleClicked: '',
     };
     const { addState, node } = props;
     const { id } = node;
-    const stateNamePrefix = 'CopyVariables';
+    const stateNamePrefix = 'List';
     addState(this.state.representation, stateNamePrefix, id);
+    this.state.name = store.getState().representation.idToName[node.id];
+    this.state.nameBeforeEditTitleClicked = this.state.name;
   }
 
   componentWillUnmount() {
@@ -54,10 +59,12 @@ export default class CopyVariablesNodeWidget extends
     const { node } = this.props;
     node.addInPort('IN');
     node.addOutPort('OUT');
-    registerNotEditable.apply(this, ['IN', 'OUT']);
-    node.addInPort('from –– ');
-    node.addInPort('to –– ');
+    node.addInPort('variable');
+    registerNotEditable.apply(this, ['IN', 'OUT', 'variable']);
+    node.addInPort('prompt –– ');
+    node.addInPort('options –– ');
   }
+
 
   componentDidMount() {
     const { node } = this.props;
@@ -70,8 +77,8 @@ export default class CopyVariablesNodeWidget extends
     const { node } = this.props;
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        {DefaultComponentNodeForm.apply(this, [this])}
-        {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this])}
+        { DefaultComponentNodeForm.apply(this, [this]) }
+        { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
       </div>
     );
   }

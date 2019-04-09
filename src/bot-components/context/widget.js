@@ -3,17 +3,11 @@ import * as React from 'react';
 import {
   BaseWidget,
 } from 'storm-react-diagrams';
-import {
-  addContextVariable,
-  renameContextVariable,
-} from '../../redux/actions';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeBody, VariableNameComponentNodeForm } from '../../helpers/PureComponents';
 
 export interface ContextNodeWidgetProps {
   node: AdvancedNodeModel;
-  addContextVariable: typeof addContextVariable;
-  renameContextVariable: typeof renameContextVariable;
 }
 
 export interface ContextNodeWidgetState {
@@ -34,7 +28,7 @@ export interface ContextNodeWidgetState {
 /**
  * @author Riyad Shauk
  */
-export default class extends BaseWidget<ContextNodeWidgetProps,
+export default class ContextNodeWidget extends BaseWidget<ContextNodeWidgetProps,
   ContextNodeWidgetState> {
   constructor(props: ContextNodeWidgetProps) {
     super('srd-default-node', props);
@@ -53,12 +47,12 @@ export default class extends BaseWidget<ContextNodeWidgetProps,
   }
 
   render() {
-    const { node, addContextVariable, renameContextVariable } = this.props;
+    const { node } = this.props;
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
         {
           VariableNameComponentNodeForm
-            .apply(this, [this, addContextVariable, renameContextVariable])
+            .apply(this, [this])
         }
         {DefaultComponentNodeBody.apply(this, [node, this])}
       </div>

@@ -1,40 +1,26 @@
 // @flow
 import * as React from 'react';
-import { NodeModel, BaseWidget } from 'storm-react-diagrams';
+import { BaseWidget } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
-import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 import { registerNotEditable } from '../../helpers/helpers';
+import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 import store from '../../redux/store';
 
-export interface ConditionEqualsNodeWidgetProps {
+export interface SetVariableNodeWidgetProps {
   node: AdvancedNodeModel;
   addState: Function;
 }
 
-export interface ConditionEqualsNodeWidgetState {
-  representation: {
-    component: 'System.ConditionEquals',
-    properties: {
-      variable: string,
-      value: string,
-    },
-    transitions: {
-      actions: {
-        equal: string,
-        notequal: string,
-      },
-    },
-    name: string,
-  };
+export interface SetVariableNodeWidgetState {
   notEditable: {};
 }
 
 /**
  * @author Riyad Shauk
  */
-export default class ConditionEqualsNodeWidget extends
-  BaseWidget<ConditionEqualsNodeWidgetProps, ConditionEqualsNodeWidgetState> {
-  constructor(props: ConditionEqualsNodeWidgetProps) {
+export default class SetVariableNodeWidget extends
+  BaseWidget<SetVariableNodeWidgetProps, SetVariableNodeWidgetState> {
+  constructor(props: SetVariableNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
       propertyName: '',
@@ -43,37 +29,38 @@ export default class ConditionEqualsNodeWidget extends
       prevPropertyName: '',
       notEditable: {},
       representation: {
-        component: 'System.ConditionEquals',
+        component: 'System.SetVariable',
         properties: {
           variable: '',
           value: '',
         },
         transitions: {
-          actions: {
-            equal: '',
-            notequal: '',
-          },
+          next: '',
         },
       },
       name: '',
+      isEditingTitle: false,
+      nameBeforeEditTitleClicked: '',
     };
-    const { addState, node } = props;
+    const { addState, node } = this.props;
     const { id } = node;
-    const stateNamePrefix = 'Equals';
+    const stateNamePrefix = 'SetVariable';
     addState(this.state.representation, stateNamePrefix, id);
+    this.state.name = store.getState().representation.idToName[node.id];
+    this.state.nameBeforeEditTitleClicked = this.state.name;
   }
 
-  isEditing = () => Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
 
   componentWillMount() {
     const { node } = this.props;
     node.addInPort('IN');
+    node.addOutPort('OUT');
     node.addInPort('variable');
+    registerNotEditable.apply(this, ['IN', 'OUT', 'variable']);
     node.addInPort('value –– ');
-    node.addInPort('true');
-    node.addInPort('false');
-
-    registerNotEditable.apply(this, ['IN', 'variable', 'true', 'false']);
   }
 
   componentDidMount() {
@@ -81,10 +68,6 @@ export default class ConditionEqualsNodeWidget extends
     this.unsubscribe = store.subscribe(() => {
       this.setState({ name: store.getState().representation.idToName[node.id] });
     });
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe();
   }
 
   render() {

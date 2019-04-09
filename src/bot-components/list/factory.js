@@ -4,20 +4,20 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import ConditionEqualsNodeWidget from '../../redux/containers/equals';
+import ListNodeWidget from '../../redux/containers/list';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
-export default class extends AbstractNodeFactory {
+export default class ListNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('condition-equals');
+    super('system-list');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <ConditionEqualsNodeWidget node={node} />;
+    return <ListNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'condition-equals');
+    return new AdvancedNodeModel(undefined, undefined, 'system-list');
   }
 }

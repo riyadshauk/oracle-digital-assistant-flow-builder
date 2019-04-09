@@ -4,20 +4,20 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
+import CopyVariablesNodeWidget from '../../redux/containers/copyVariables';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
-import ConditionExistsNodeWidget from '../../redux/containers/exists';
 
-export default class extends AbstractNodeFactory {
+export default class CopyVariablesNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('condition-exists');
+    super('copy-variables');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <ConditionExistsNodeWidget node={node} />;
+    return <CopyVariablesNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'condition-exists');
+    return new AdvancedNodeModel(undefined, undefined, 'copy-variables');
   }
 }

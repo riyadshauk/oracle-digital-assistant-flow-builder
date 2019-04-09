@@ -1,26 +1,27 @@
 // @flow
 import * as React from 'react';
 import { BaseWidget } from 'storm-react-diagrams';
-import { registerNotEditable } from '../../helpers/helpers';
-import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
+import { registerNotEditable } from '../../helpers/helpers';
+import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort, EditComponentTypeForm } from '../../helpers/PureComponents';
 import store from '../../redux/store';
 
-export interface SystemListNodeWidgetProps {
+export interface GeneralNodeWidgetProps {
   node: AdvancedNodeModel;
   addState: Function;
 }
 
-export interface SystemListNodeWidgetState {
+export interface GeneralNodeWidgetState {
   notEditable: {};
 }
 
 /**
  * @author Riyad Shauk
+ * @todo still need to be able to add to properties and add to transitions
  */
-export default class SystemListNodeWidget extends
-  BaseWidget<SystemListNodeWidgetProps, SystemListNodeWidgetState> {
-  constructor(props: SystemListNodeWidgetProps) {
+export default class GeneralNodeWidget extends
+  BaseWidget<GeneralNodeWidgetProps, GeneralNodeWidgetState> {
+  constructor(props: GeneralNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
       propertyName: '',
@@ -29,21 +30,25 @@ export default class SystemListNodeWidget extends
       prevPropertyName: '',
       notEditable: {},
       representation: {
-        component: 'System.List',
+        component: 'Default.Component',
         properties: {
-          from: '',
-          to: '',
         },
         transitions: {
           next: '',
         },
       },
       name: '',
+      isEditingTitle: false,
+      nameBeforeEditTitleClicked: '',
+      isEditingComponentType: false,
+      nameBeforeEditComponentClicked: '',
     };
-    const { addState, node } = props;
+    const { addState, node } = this.props;
     const { id } = node;
-    const stateNamePrefix = 'List';
+    const stateNamePrefix = 'Default';
     addState(this.state.representation, stateNamePrefix, id);
+    this.state.name = store.getState().representation.idToName[node.id];
+    this.state.nameBeforeEditTitleClicked = this.state.name;
   }
 
   componentWillUnmount() {
@@ -54,12 +59,8 @@ export default class SystemListNodeWidget extends
     const { node } = this.props;
     node.addInPort('IN');
     node.addOutPort('OUT');
-    node.addInPort('variable');
-    registerNotEditable.apply(this, ['IN', 'OUT', 'variable']);
-    node.addInPort('prompt –– ');
-    node.addInPort('options –– ');
+    registerNotEditable.apply(this, ['IN', 'OUT']);
   }
-
 
   componentDidMount() {
     const { node } = this.props;
@@ -70,9 +71,13 @@ export default class SystemListNodeWidget extends
 
   render() {
     const { node } = this.props;
+    /**
+     * @todo buttons: Add Property, Add Variable, Add Transition, Add Action
+     */
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
         { DefaultComponentNodeForm.apply(this, [this]) }
+        { EditComponentTypeForm.apply(this, [this]) }
         { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
       </div>
     );

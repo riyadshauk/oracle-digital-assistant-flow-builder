@@ -4,20 +4,20 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import SystemListNodeWidget from '../../redux/containers/list';
+import GeneralNodeWidget from '../../redux/containers/general';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
-export default class extends AbstractNodeFactory {
+export default class GeneralNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('system-list');
+    super('general-component');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <SystemListNodeWidget node={node} />;
+    return <GeneralNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'system-list');
+    return new AdvancedNodeModel(undefined, undefined, 'general-component');
   }
 }

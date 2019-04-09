@@ -12,9 +12,9 @@ export type State = {
   },
   name: string,
 };
-export type ContextVariable = {
+export type Variable = {
   name: string,
-  entityType: string,
+  value: string,
 };
 
 export type RepresentationStore = {

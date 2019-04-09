@@ -4,20 +4,20 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import SystemOutputNodeWidget from '../../redux/containers/output';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
+import ConditionExistsNodeWidget from '../../redux/containers/exists';
 
-export default class extends AbstractNodeFactory {
+export default class ExistsNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('system-output');
+    super('condition-exists');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <SystemOutputNodeWidget node={node} />;
+    return <ConditionExistsNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'system-output');
+    return new AdvancedNodeModel(undefined, undefined, 'condition-exists');
   }
 }

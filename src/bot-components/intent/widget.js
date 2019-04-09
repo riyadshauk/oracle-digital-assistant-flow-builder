@@ -38,11 +38,15 @@ export default class IntentNodeWidget extends
         },
       },
       name: '',
+      isEditingTitle: false,
+      nameBeforeEditTitleClicked: '',
     };
     const { addState, node } = props;
     const { id } = node;
     const stateNamePrefix = 'Intent';
     addState(this.state.representation, stateNamePrefix, id);
+    this.state.name = store.getState().representation.idToName[node.id];
+    this.state.nameBeforeEditTitleClicked = this.state.name;
   }
 
   componentWillUnmount() {

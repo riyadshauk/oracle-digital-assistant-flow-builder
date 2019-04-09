@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import IntentNodeWidget from '../../bot-components/intent/IntentNodeWidget';
+import IntentNodeWidget from '../../bot-components/intent/widget';
 import { addState } from '../actions';
 
 const actionCreators = {

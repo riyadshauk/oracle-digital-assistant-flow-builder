@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import ContextNodeWidget from '../../bot-components/context/ContextNodeWidget';
+import ContextNodeWidget from '../../bot-components/context/widget';
 import {
   addContextVariable,
   renameContextVariable,

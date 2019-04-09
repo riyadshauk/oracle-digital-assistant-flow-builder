@@ -8,10 +8,11 @@ import {
   isEditing,
   addOrUpdateProperty,
   generatePort,
+  editTitleClicked,
+  updateTitleName,
+  editComponentTypeClicked,
+  updateComponentType,
 } from './helpers';
-import {
-  type ContextVariable,
-} from '../redux/representationTypes';
 
 export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
   const { propertyName, propertyValue } = thisWidget.state;
@@ -33,12 +34,10 @@ export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
   );
 };
 
-export const VariableNameComponentNodeForm = (thisWidget: BaseWidget,
-  addContextVariable?: ({ name: string, entityType: string }) => void,
-  renameContextVariable?: ({ prev: ContextVariable, cur: ContextVariable }) => void) => {
+export const VariableNameComponentNodeForm = (thisWidget: BaseWidget) => {
   const { propertyName, propertyValue } = thisWidget.state;
   return (
-    <form id="addVariable" onSubmit={(event: Event) => addOrUpdateProperty.apply(thisWidget, [event, addContextVariable, renameContextVariable])}>
+    <form id="addVariable" onSubmit={addOrUpdateProperty.bind(thisWidget)}>
       <label htmlFor="addOrUpdateProperty">
         Name:&nbsp;
         <input type="text" value={propertyName} onChange={updatePropertyName.bind(thisWidget)} />
@@ -57,9 +56,16 @@ export const VariableNameComponentNodeForm = (thisWidget: BaseWidget,
 
 export const DefaultComponentNodeBody = (node: NodeModel, thisWidget: BaseWidget) => (
   <div {...thisWidget.getProps()} style={{ background: node.color }}>
-    <div className={thisWidget.bem('__title')}>
-      <div className={thisWidget.bem('__name')}>{thisWidget.state.name}</div>
-    </div>
+    {
+      !Object.prototype.hasOwnProperty.call(thisWidget.state.representation, 'context')
+        ? (
+          <div className={thisWidget.bem('__title')}>
+            <div className={thisWidget.bem('__name')}>{thisWidget.state.name}</div>
+            <EditTitleForm thisWidget={thisWidget} />
+          </div>
+        )
+        : undefined
+    }
     <div className={thisWidget.bem('__title')}>
       <div className={thisWidget.bem('__name')}>{node.name}</div>
     </div>
@@ -74,26 +80,103 @@ export const DefaultComponentNodeBody = (node: NodeModel, thisWidget: BaseWidget
   </div>
 );
 
-export const DefaultComponentNodeBodyWithOneSpecialInPort = (node: NodeModel,
-  thisWidget: BaseWidget) => (
-    <div {...thisWidget.getProps()} style={{ background: node.color }}>
-      <div className={thisWidget.bem('__title')}>
-        <div className={thisWidget.bem('__name')}>{thisWidget.state.name}</div>
-      </div>
-      <div className={thisWidget.bem('__title')}>
-        <div className={thisWidget.bem('__name')}>{node.name}</div>
-        <div className={thisWidget.bem('__in')}>
-          {/* {thisWidget.generatePort.apply(thisWidget, [node.getInPorts()[0]])} */}
-          {_.map(node.getInPorts(), generatePort.bind(thisWidget))[0]}
-        </div>
-      </div>
-      <div className={thisWidget.bem('__ports')}>
-        <div className={thisWidget.bem('__in')}>
-          {_.map(node.getInPorts(), generatePort.bind(thisWidget)).slice(1)}
-        </div>
-        <div className={thisWidget.bem('__out')}>
-          {_.map(node.getOutPorts(), generatePort.bind(thisWidget))}
-        </div>
+// eslint-disable-next-line max-len
+export const DefaultComponentNodeBodyWithOneSpecialInPort = (node: NodeModel, thisWidget: BaseWidget) => (
+  <div {...thisWidget.getProps()} style={{ background: node.color }}>
+    <EditTitleForm thisWidget={thisWidget} />
+    <div className={thisWidget.bem('__title')}>
+      <div className={thisWidget.bem('__name')}>{node.name}</div>
+      <div className={thisWidget.bem('__in')}>
+        {/* {thisWidget.generatePort.apply(thisWidget, [node.getInPorts()[0]])} */}
+        {_.map(node.getInPorts(), generatePort.bind(thisWidget))[0]}
       </div>
     </div>
+    <div className={thisWidget.bem('__ports')}>
+      <div className={thisWidget.bem('__in')}>
+        {_.map(node.getInPorts(), generatePort.bind(thisWidget)).slice(1)}
+      </div>
+      <div className={thisWidget.bem('__out')}>
+        {_.map(node.getOutPorts(), generatePort.bind(thisWidget))}
+      </div>
+    </div>
+  </div>
+);
+
+export const EditTitleForm = ({ thisWidget }: BaseWidget) => (
+  <div className={thisWidget.bem('__title')}>
+    {
+      // if
+      thisWidget.state.isEditingTitle
+        ? (
+          <div className={thisWidget.bem('__name')}>
+            <form
+              id="modifyTitle"
+              onSubmit={(event: SyntheticInputEvent<EventTarget>) => (
+                editTitleClicked.apply(thisWidget, [event])
+              )}
+            >
+              <input
+                type="text"
+                value={thisWidget.state.name}
+                onChange={(event: SyntheticInputEvent<EventTarget>) => (
+                  updateTitleName.apply(thisWidget, [event])
+                )}
+              />
+            </form>
+          </div>
+        )
+        // else
+        : <div className={thisWidget.bem('__name')}>{thisWidget.state.name}</div>
+    }
+    <button
+      type="button"
+      onClick={
+        (event: SyntheticInputEvent<EventTarget>) => editTitleClicked.apply(thisWidget, [event])
+      }
+    >
+      {thisWidget.state.isEditingTitle ? 'Save' : 'Edit Title'}
+    </button>
+  </div>
+);
+
+/**
+ * This is a special component, basically just for the Default bot-component.
+ */
+export const EditComponentTypeForm = (thisWidget: BaseWidget) => (
+  <div className={thisWidget.bem('__title')}>
+    {
+      // if
+      thisWidget.state.isEditingComponentType
+        ? (
+          <div className={thisWidget.bem('__name')}>
+            <form
+              id="modifyTitle"
+              onSubmit={(event: SyntheticInputEvent<EventTarget>) => (
+                editComponentTypeClicked.apply(thisWidget, [event])
+              )}
+            >
+              <input
+                type="text"
+                value={thisWidget.state.component}
+                onChange={(event: SyntheticInputEvent<EventTarget>) => (
+                  updateComponentType.apply(thisWidget, [event])
+                )}
+              />
+            </form>
+          </div>
+        )
+        // else
+        : <div className={thisWidget.bem('__name')}>{thisWidget.state.component}</div>
+    }
+    <button
+      type="button"
+      onClick={
+        (event: SyntheticInputEvent<EventTarget>) => (
+          editComponentTypeClicked.apply(thisWidget, [event])
+        )
+      }
+    >
+      {thisWidget.state.isEditingComponentType ? 'Save' : 'Edit'}
+    </button>
+  </div>
 );

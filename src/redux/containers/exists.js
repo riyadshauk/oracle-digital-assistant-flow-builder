@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import ConditionExistsNodeWidget from '../../bot-components/conditionExists/ConditionExistsNodeWidget';
+import ExistsNodeWidget from '../../bot-components/exists/widget';
 import { addState } from '../actions';
 
 const actionCreators = {
   addState,
 };
 
-export default connect(null, actionCreators)(ConditionExistsNodeWidget);
+export default connect(null, actionCreators)(ExistsNodeWidget);

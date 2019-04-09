@@ -6,8 +6,9 @@ import {
 } from 'storm-react-diagrams';
 import { DefaultComponentPortLabel } from './ClassComponents';
 import {
-  type ContextVariable,
-} from '../redux/representationTypes';
+  addContextVariable, renameContextVariable, renameVariableValue, renameState, updateComponent,
+} from '../redux/actions';
+import store from '../redux/store';
 
 export function registerNotEditable(...variableNames: string[]) {
   variableNames.forEach((variableName) => {
@@ -51,24 +52,21 @@ const isValidNewPropertyName = (node: NodeModel, propertyName: string): boolean 
   return true;
 };
 
-export function addLabel(
-  addContextVariable?: (variableName: ContextVariable) => void,
-) {
+export function addLabel() {
   const { node } = this.props;
   const { propertyName, propertyValue } = this.state;
   if (!isValidNewPropertyName(node, propertyName)) {
     return;
   }
   node.addInPort(`${propertyName} –– ${propertyValue}`);
-  if (typeof addContextVariable === 'function') {
-    addContextVariable({ name: propertyName, entityType: propertyValue });
+  if (Object.prototype.hasOwnProperty.call(this.state.representation, 'context')) {
+    store.dispatch(
+      addContextVariable({ name: propertyName, value: propertyValue }),
+    );
   }
 }
 
-export function updateLabel(
-  addContextVariable?: (variableName: ContextVariable) => void,
-  renameContextVariable?: ({ prev: ContextVariable, cur: ContextVariable }) => void,
-) {
+export function updateLabel() {
   const { node } = this.props;
   const { propertyName, propertyValue } = this.state;
   if (!propertyName) {
@@ -76,18 +74,22 @@ export function updateLabel(
   }
   const ports = node.getInPorts();
   const re = RegExp(`${propertyName} –– `, 'g');
+  let variableRenamed = false;
   ports.forEach((port) => {
     const portName = port.label;
     const occurrences = portName.match(re);
     if (occurrences !== undefined && occurrences && occurrences.length === 1) {
-      if (typeof renameContextVariable === 'function') {
-        const prevVals = portName.split(' –– ');
-        console.log('prevVals:', prevVals);
-        console.log('propertyName, propertyValue:', propertyName, propertyValue);
-        renameContextVariable({
-          prev: { name: prevVals[0], entityType: prevVals[1] },
-          cur: { name: propertyName, entityType: propertyValue },
-        });
+      variableRenamed = true;
+      const prevVals = portName.split(' –– ');
+      const prev = { name: prevVals[0], value: prevVals[1] };
+      const cur = { name: propertyName, value: propertyValue };
+      if (Object.prototype.hasOwnProperty.call(this.state.representation, 'context')) {
+        store.dispatch(renameContextVariable({ prev, cur }));
+      } else {
+        const stateName = this.state.name;
+        store.dispatch(renameVariableValue({
+          variableName: prevVals[0], newValue: propertyValue, stateName,
+        }));
       }
 
       port.label = `${propertyName} –– ${propertyValue}`;
@@ -100,8 +102,16 @@ export function updateLabel(
       // break; // @todo end forEach early? overkill?
     }
   });
-  if (typeof addContextVariable === 'function') {
-    addContextVariable({ name: propertyName, entityType: propertyValue });
+  if (!variableRenamed) {
+    if (Object.prototype.hasOwnProperty.call(this.state.representation, 'context')) {
+      store.dispatch(
+        addContextVariable({ name: propertyName, value: propertyValue }),
+      );
+    } else { // @todo
+      // store.dispatch( // not used for now
+
+      // );
+    }
   }
 }
 
@@ -146,6 +156,31 @@ export function updatePropertyValue(event: SyntheticInputEvent<EventTarget>) {
   this.setState({ propertyValue: event.target.value });
 }
 
+export function updateTitleName(event: SyntheticInputEvent<EventTarget>) {
+  this.setState({ name: event.target.value });
+}
+
+export function updateStateName(event: SyntheticInputEvent<EventTarget>) {
+  event.preventDefault();
+  const oldName = this.state.nameBeforeEditTitleClicked;
+  const newName = this.state.name;
+  store.dispatch(
+    renameState({ oldName, newName }),
+  );
+}
+
+export function updateComponentTypeName(event: SyntheticInputEvent<EventTarget>) {
+  event.preventDefault();
+  this.setState({ component: event.target.value });
+}
+
+export function updateComponentType(event: SyntheticInputEvent<EventTarget>) {
+  event.preventDefault();
+  store.dispatch(
+    updateComponent({ stateName: this.state.name, componentType: this.state.component }),
+  );
+}
+
 export function isEditing() {
   return Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
 }
@@ -175,6 +210,34 @@ export function editClicked(port: any) {
   }
 }
 
+export function editTitleClicked(event: SyntheticInputEvent<EventTarget>) {
+  if (this.state.isEditingTitle) {
+    this.setState(prevState => ({
+      isEditingTitle: false,
+      nameBeforeEditTitleClicked: prevState.name,
+    }));
+    updateStateName.apply(this, [event]);
+  } else {
+    this.setState({
+      isEditingTitle: true,
+    });
+  }
+}
+
+export function editComponentTypeClicked(event: SyntheticInputEvent<EventTarget>) {
+  if (this.state.isEditingComponentType) {
+    this.setState(prevState => ({
+      isEditingComponentType: false,
+      nameBeforeEditTitleClicked: prevState.component,
+    }));
+    updateComponentTypeName.apply(this, [event]);
+  } else {
+    this.setState({
+      isEditingComponentType: true,
+    });
+  }
+}
+
 export function generatePort(port: any) {
   // eslint-disable-next-line react/no-this-in-sfc
   const { notEditable } = this.state;
@@ -193,14 +256,12 @@ export function generatePort(port: any) {
   );
 }
 
-export function addOrUpdateProperty(event: Event,
-  addContextVariable?: (variableName: { name: string, entityType: string }) => void,
-  renameContextVariable?: ({ prev: ContextVariable, cur: ContextVariable }) => void) {
+export function addOrUpdateProperty(event: Event) {
   event.preventDefault(); // prevent form submission from routing browser to different path
   if (isEditing.apply(this)) {
-    updateLabel.apply(this, [addContextVariable, renameContextVariable]);
+    updateLabel.apply(this);
   } else {
-    addLabel.apply(this, [addContextVariable]);
+    addLabel.apply(this);
   }
   clearPropertyName.apply(this);
   clearPropertyValue.apply(this);

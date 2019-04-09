@@ -4,20 +4,20 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import CopyVariablesNodeWidget from '../../redux/containers/copyVariables';
+import OutputNodeWidget from '../../redux/containers/output';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export default class extends AbstractNodeFactory {
   constructor() {
-    super('copy-variables');
+    super('system-output');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <CopyVariablesNodeWidget node={node} />;
+    return <OutputNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'copy-variables');
+    return new AdvancedNodeModel(undefined, undefined, 'system-output');
   }
 }

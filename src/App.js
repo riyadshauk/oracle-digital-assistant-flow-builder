@@ -7,15 +7,15 @@ import {
 // $FlowFixMe
 import './sass/main.scss';
 import { AdvancedLinkFactory } from './AdvancedDiagramFactories';
-import ContextNodeFactory from './bot-components/context/ContextNodeFactory';
-import DefaultComponentNodeFactory from './bot-components/defaultComponent/DefaultComponentNodeFactory';
-import ConditionExistsNodeFactory from './bot-components/conditionExists/ConditionExistsNodeFactory';
-import SystemListNodeFactory from './bot-components/systemList/SystemListNodeFactory';
-import ConditionEqualsNodeFactory from './bot-components/conditionEquals/ConditionEqualsNodeFactory';
-import SetVariableNodeFactory from './bot-components/setVariable/SetVariableNodeFactory';
-import SystemOutputNodeFactory from './bot-components/systemOutput/SystemOutputNodeFactory';
-import CopyVariablesNodeFactory from './bot-components/copyVariables/CopyVariablesNodeFactory';
-import IntentNodeFactory from './bot-components/intent/IntentNodeFactory';
+import ContextNodeFactory from './bot-components/context/factory';
+import GeneralNodeFactory from './bot-components/general/factory';
+import ExistsNodeFactory from './bot-components/exists/factory';
+import ListNodeFactory from './bot-components/list/factory';
+import EqualsNodeFactory from './bot-components/equals/factory';
+import SetVariableNodeFactory from './bot-components/setVariable/factory';
+import OutputNodeFactory from './bot-components/output/factory';
+import CopyVariablesNodeFactory from './bot-components/copyVariables/factory';
+import IntentNodeFactory from './bot-components/intent/factory';
 
 /**
  * @author Dylan Vorster
@@ -32,12 +32,12 @@ export default class App {
     this.diagramEngine.installDefaultFactories();
     this.diagramEngine.registerLinkFactory(new AdvancedLinkFactory());
     this.diagramEngine.registerNodeFactory(new ContextNodeFactory());
-    this.diagramEngine.registerNodeFactory(new DefaultComponentNodeFactory());
-    this.diagramEngine.registerNodeFactory(new ConditionExistsNodeFactory());
-    this.diagramEngine.registerNodeFactory(new SystemListNodeFactory());
-    this.diagramEngine.registerNodeFactory(new ConditionEqualsNodeFactory());
+    this.diagramEngine.registerNodeFactory(new GeneralNodeFactory());
+    this.diagramEngine.registerNodeFactory(new ExistsNodeFactory());
+    this.diagramEngine.registerNodeFactory(new ListNodeFactory());
+    this.diagramEngine.registerNodeFactory(new EqualsNodeFactory());
     this.diagramEngine.registerNodeFactory(new SetVariableNodeFactory());
-    this.diagramEngine.registerNodeFactory(new SystemOutputNodeFactory());
+    this.diagramEngine.registerNodeFactory(new OutputNodeFactory());
     this.diagramEngine.registerNodeFactory(new CopyVariablesNodeFactory());
     this.diagramEngine.registerNodeFactory(new IntentNodeFactory());
     this.newModel();
