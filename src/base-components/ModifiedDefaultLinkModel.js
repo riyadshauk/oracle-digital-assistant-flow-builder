@@ -36,7 +36,10 @@ export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLi
    * (setSourcePort and setTargetPort).
    */
   generateLabelIfPossible() {
-    if (this.targetPort === null || this.sourcePort === null) {
+    if (this.targetPort === null
+      || this.sourcePort === null
+      || this.sourcePort.parent.type === 'context'
+    ) {
       return;
     }
     // eslint-disable-next-line max-len

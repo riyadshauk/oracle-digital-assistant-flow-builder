@@ -6,7 +6,7 @@ import {
 } from 'storm-react-diagrams';
 // $FlowFixMe
 import './sass/main.scss';
-import { AdvancedLinkFactory } from './AdvancedDiagramFactories';
+import { AdvancedLinkFactory, AdvancedNodeModel } from './AdvancedDiagramFactories';
 import ContextNodeFactory from './bot-components/context/factory';
 import GeneralNodeFactory from './bot-components/general/factory';
 import ExistsNodeFactory from './bot-components/exists/factory';
@@ -25,7 +25,7 @@ export default class App {
 
   diagramEngine: DiagramEngine;
 
-  botRoot: NodeModel;
+  contextNode: NodeModel;
 
   constructor() {
     this.diagramEngine = new DiagramEngine();
@@ -46,6 +46,9 @@ export default class App {
   newModel() {
     this.activeModel = new DiagramModel();
     this.diagramEngine.setDiagramModel(this.activeModel);
+    this.contextNode = new AdvancedNodeModel('Context', undefined, 'context');
+    this.contextNode.setPosition(25, 30);
+    this.activeModel.addAll(this.contextNode);
   }
 
   getActiveDiagram(): DiagramModel {

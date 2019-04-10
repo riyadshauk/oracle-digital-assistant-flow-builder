@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseWidget } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
-import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
+import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/FunctionalComponents';
 import { registerNotEditable } from '../../helpers/helpers';
 import store from '../../redux/store';
 

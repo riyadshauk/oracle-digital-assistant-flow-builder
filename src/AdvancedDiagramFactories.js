@@ -29,7 +29,12 @@ export class AdvancedPortModel extends DefaultPortModel {
     return new AdvancedLinkModel();
   }
 
-  canLinkToPort = () => true;
+  canLinkToPort(targetPort: AdvancedPortModel) {
+    if (this === targetPort || this.parent.type === 'context') {
+      return false;
+    }
+    return true;
+  }
 }
 
 export class AdvancedLinkFactory extends DefaultLinkFactory {
@@ -62,7 +67,7 @@ export class AdvancedNodeModel extends NodeModel<NodeModelListener> {
 
   ports: { [s: string]: AdvancedPortModel };
 
-  constructor(name: string = 'Untitled', color: string = 'lightblue', type: string = 'default') {
+  constructor(name: string = 'Untitled', color: string = 'rgb(0,192,255)', type: string = 'default') {
     super(type);
     this.name = name;
     this.color = color;

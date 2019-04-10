@@ -13,6 +13,7 @@ import {
   editComponentTypeClicked,
   updateComponentType,
 } from './helpers';
+import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 
 export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
   const { propertyName, propertyValue } = thisWidget.state;
@@ -81,7 +82,7 @@ export const DefaultComponentNodeBody = (node: NodeModel, thisWidget: BaseWidget
 );
 
 // eslint-disable-next-line max-len
-export const DefaultComponentNodeBodyWithOneSpecialInPort = (node: NodeModel, thisWidget: BaseWidget) => (
+export const DefaultComponentNodeBodyWithOneSpecialInPort = (node: NodeModel, thisWidget: BaseWidget, suffixElements?: React.Element<any>[]) => (
   <div {...thisWidget.getProps()} style={{ background: node.color }}>
     <EditTitleForm thisWidget={thisWidget} />
     <div className={thisWidget.bem('__title')}>
@@ -99,6 +100,14 @@ export const DefaultComponentNodeBodyWithOneSpecialInPort = (node: NodeModel, th
         {_.map(node.getOutPorts(), generatePort.bind(thisWidget))}
       </div>
     </div>
+    {
+      (suffixElements || []).map((element, idx) => (
+        // eslint-disable-next-line react/no-array-index-key
+        <div key={`suffixElement${idx}`}>
+          {element}
+        </div>
+      ))
+    }
   </div>
 );
 
@@ -139,6 +148,48 @@ export const EditTitleForm = ({ thisWidget }: BaseWidget) => (
   </div>
 );
 
+export const AddProperty = (
+  thisWidget: BaseWidget,
+  node: AdvancedNodeModel,
+  onSubmit: (event: SyntheticInputEvent<EventTarget>,
+    node: AdvancedNodeModel,
+    componentPropertyType: string) => void,
+  onChange: (event: SyntheticInputEvent<EventTarget>, componentPropertyType: string) => void,
+  componentPropertyType: string,
+) => (
+  <div className={thisWidget.bem('__title')}>
+    <div className={thisWidget.bem('__name')}>
+      <form
+        id="modifyTitle"
+        onSubmit={
+          (event: SyntheticInputEvent<EventTarget>) => (
+            onSubmit.apply(thisWidget, [event, node, componentPropertyType])
+          )
+        }
+      >
+        <input
+          type="text"
+          value={thisWidget.state[`current${componentPropertyType}Text`]}
+          onChange={
+            (event: SyntheticInputEvent<EventTarget>) => (
+              onChange.apply(thisWidget, [event, componentPropertyType])
+            )}
+        />
+      </form>
+    </div>
+    <button
+      type="button"
+      onClick={
+        (event: SyntheticInputEvent<EventTarget>) => (
+          onSubmit.apply(thisWidget, [event, node, componentPropertyType])
+        )
+      }
+    >
+      {`Add ${componentPropertyType}`}
+    </button>
+  </div>
+);
+
 /**
  * This is a special component, basically just for the Default bot-component.
  */
@@ -157,7 +208,7 @@ export const EditComponentTypeForm = (thisWidget: BaseWidget) => (
             >
               <input
                 type="text"
-                value={thisWidget.state.component}
+                value={thisWidget.state.representation.component}
                 onChange={(event: SyntheticInputEvent<EventTarget>) => (
                   updateComponentType.apply(thisWidget, [event])
                 )}
@@ -166,7 +217,7 @@ export const EditComponentTypeForm = (thisWidget: BaseWidget) => (
           </div>
         )
         // else
-        : <div className={thisWidget.bem('__name')}>{thisWidget.state.component}</div>
+        : <div className={thisWidget.bem('__name')}>{thisWidget.state.representation.component}</div>
     }
     <button
       type="button"

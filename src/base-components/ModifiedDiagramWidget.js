@@ -33,7 +33,7 @@ import {
   DiagramWidget,
 } from 'storm-react-diagrams';
 import store from '../redux/store';
-import { removeState, removeAction } from '../redux/actions';
+import { removeState, removeAction, removeTransition } from '../redux/actions';
 
 export interface DiagramProps extends BaseWidgetProps {
   diagramEngine: DiagramEngine;
@@ -195,14 +195,23 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
         if (!this.props.diagramEngine.isModelLocked(element)) {
           // dispatch any removal actions here (ie: removeState, removeAction, etc)
           store.dispatch(removeState(element.id));
-          if (Object.prototype.hasOwnProperty.call(element, 'sourcePort')
-            && Object.prototype.hasOwnProperty.call(element, 'targetPort')
+          if (element
+            && element.sourcePort && element.targetPort
+            && element.targetPort.parent
+            && element.targetPort.parent.id
           ) {
             store.dispatch(
-              removeAction(element.sourcePort.parent.id, element.targetPort.parent.id),
+              removeTransition({
+                sourcePortParentID: element.sourcePort.parent.id,
+                sourcePortLabel: element.sourcePort.label,
+                targetPortParentID: element.targetPort.parent.id,
+                targetPortLabel: element.targetPort.label,
+              }),
             );
+            element.remove();
+          } else if (element.type !== 'context') {
+            element.remove();
           }
-          element.remove();
         }
       });
       this.forceUpdate();
@@ -297,7 +306,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
             )
           ) {
             // link is a duplicate
-            // link.remove();
+            link.remove();
           }
         }
       });

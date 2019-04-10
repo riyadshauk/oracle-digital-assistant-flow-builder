@@ -6,9 +6,17 @@ import {
 } from 'storm-react-diagrams';
 import { DefaultComponentPortLabel } from './ClassComponents';
 import {
-  addContextVariable, renameContextVariable, renameVariableValue, renameState, updateComponent,
+  addContextVariable,
+  renameContextVariable,
+  renameVariableValue,
+  renameState,
+  updateComponent,
+  updateTransitionProperty,
+  addProperty,
+  updateProperty,
 } from '../redux/actions';
 import store from '../redux/store';
+import { AdvancedPortModel, AdvancedNodeModel } from '../AdvancedDiagramFactories';
 
 export function registerNotEditable(...variableNames: string[]) {
   variableNames.forEach((variableName) => {
@@ -177,7 +185,30 @@ export function updateComponentTypeName(event: SyntheticInputEvent<EventTarget>)
 export function updateComponentType(event: SyntheticInputEvent<EventTarget>) {
   event.preventDefault();
   store.dispatch(
-    updateComponent({ stateName: this.state.name, componentType: this.state.component }),
+    updateComponent({ stateName: this.state.name, componentType: event.target.value }),
+  );
+}
+
+export function updateStatePropertyText(
+  event: SyntheticInputEvent<EventTarget>,
+  componentPropertyType: string,
+) {
+  event.preventDefault();
+  const preservedValue = event.target.value;
+  const currentPropertyText = `current${componentPropertyType}PropertyText`;
+  this.setState({ [currentPropertyText]: preservedValue });
+}
+
+/**
+ * @todo see updateProperty action creator + corresponding portion in representation (next to do)
+ * @param {*} event 
+ */
+export function updateStateProperty(event: SyntheticInputEvent<EventTarget>) {
+  event.preventDefault();
+  store.dispatch(
+    updateProperty({
+      stateName: this.state.name, transitionProperty: event.target.value,
+    }),
   );
 }
 
@@ -229,6 +260,7 @@ export function editComponentTypeClicked(event: SyntheticInputEvent<EventTarget>
     this.setState(prevState => ({
       isEditingComponentType: false,
       nameBeforeEditTitleClicked: prevState.component,
+      // component: prevState.component,
     }));
     updateComponentTypeName.apply(this, [event]);
   } else {
@@ -238,7 +270,28 @@ export function editComponentTypeClicked(event: SyntheticInputEvent<EventTarget>
   }
 }
 
-export function generatePort(port: any) {
+export function addPropertyClicked(
+  event: SyntheticInputEvent<EventTarget>,
+  node: AdvancedNodeModel,
+  componentPropertyType: string,
+) {
+  event.preventDefault();
+  const propertyKey = `current${componentPropertyType}PropertyText`;
+  if (this.state[propertyKey] !== '') {
+    // this should be an out-port, but it's a fine hack for now
+    node.addInPort(this.state[propertyKey]);
+    store.dispatch(
+      addProperty({
+        stateName: this.state.name,
+        propertyKey: this.state[propertyKey],
+        componentPropertyType,
+      }),
+    );
+    this.setState({ [propertyKey]: '' });
+  }
+}
+
+export function generatePort(port: AdvancedPortModel) {
   // eslint-disable-next-line react/no-this-in-sfc
   const { notEditable } = this.state;
   if (typeof notEditable !== 'object' || notEditable[port.label]) {

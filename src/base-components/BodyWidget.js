@@ -31,7 +31,6 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
         </div>
         <div className="content">
           <TrayWidget>
-            <TrayItemWidget model={{ type: 'context' }} name="Context" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'system-output' }} name="Output" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'condition-equals' }} name="Equals" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'condition-exists' }} name="Exists" color="rgb(0,192,255)" />
@@ -49,7 +48,7 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
               let node = null;
               switch (data.type) {
                 case 'context':
-                  node = new AdvancedNodeModel('Context Node', 'rgb(0,192,255)', 'context');
+                  node = new AdvancedNodeModel('Context', 'rgb(0,192,255)', 'context');
                   break;
                 case 'system-list':
                   node = new AdvancedNodeModel('List', 'rgb(0,192,255)', 'system-list');

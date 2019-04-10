@@ -4,7 +4,7 @@ import {
   BaseWidget,
 } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
-import { DefaultComponentNodeBody, VariableNameComponentNodeForm } from '../../helpers/PureComponents';
+import { DefaultComponentNodeBody, VariableNameComponentNodeForm } from '../../helpers/FunctionalComponents';
 
 export interface ContextNodeWidgetProps {
   node: AdvancedNodeModel;

@@ -2,8 +2,18 @@
 import * as React from 'react';
 import { BaseWidget } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
-import { registerNotEditable } from '../../helpers/helpers';
-import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort, EditComponentTypeForm } from '../../helpers/PureComponents';
+import {
+  registerNotEditable,
+  generatePort,
+  addPropertyClicked,
+  updateStatePropertyText,
+} from '../../helpers/helpers';
+import {
+  DefaultComponentNodeForm,
+  DefaultComponentNodeBodyWithOneSpecialInPort,
+  EditComponentTypeForm,
+  AddProperty,
+} from '../../helpers/FunctionalComponents';
 import store from '../../redux/store';
 
 export interface GeneralNodeWidgetProps {
@@ -30,10 +40,11 @@ export default class GeneralNodeWidget extends
       prevPropertyName: '',
       notEditable: {},
       representation: {
-        component: 'Default.Component',
+        component: 'MyGeneralComponentType',
         properties: {
         },
         transitions: {
+          actions: {},
           next: '',
         },
       },
@@ -41,11 +52,13 @@ export default class GeneralNodeWidget extends
       isEditingTitle: false,
       nameBeforeEditTitleClicked: '',
       isEditingComponentType: false,
-      nameBeforeEditComponentClicked: '',
+      currentTransitionPropertyText: '',
+      currentActionPropertyText: '',
+      currentPropertyPropertyText: '',
     };
     const { addState, node } = this.props;
     const { id } = node;
-    const stateNamePrefix = 'Default';
+    const stateNamePrefix = 'General';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;
@@ -76,9 +89,25 @@ export default class GeneralNodeWidget extends
      */
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        { DefaultComponentNodeForm.apply(this, [this]) }
-        { EditComponentTypeForm.apply(this, [this]) }
-        { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
+        {DefaultComponentNodeForm.apply(this, [this])}
+        {EditComponentTypeForm.apply(this, [this])}
+        {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this, [
+          // $FlowFixMe
+          <div className={this.bem('__in')}>
+            {
+              node.getOutPorts().map((port) => {
+                if (port.label === 'actions' || port.label === 'next' || port.label === 'OUT') {
+                  return;
+                }
+                // eslint-disable-next-line consistent-return
+                return generatePort.apply(this, [port]);
+              })
+            }
+          </div>,
+          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Transition'),
+          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Action'),
+          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Property'),
+        ]])}
       </div>
     );
   }

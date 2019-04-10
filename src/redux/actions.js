@@ -1,19 +1,18 @@
 // @flow
 import {
   // eslint-disable-next-line max-len
-  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_VARIABLE, ADD_ACTION, ADD_TRANSITION,
+  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_VARIABLE, ADD_ACTION, ADD_TRANSITION, ADD_TRANSITION_PROPERTY, ADD_ACTION_PROPERTY, ADD_PARAMETER, ADD_PROPERTY,
   // eslint-disable-next-line max-len
-  RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_VARIABLE_VALUE,
+  RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_VARIABLE_VALUE, RENAME_TRANSITION_PROPERTY, RENAME_ACTION_PROPERTY, RENAME_PARAMETER,
   // eslint-disable-next-line max-len
-  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_VARIABLE, REMOVE_ACTION,
+  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_VARIABLE, REMOVE_ACTION, REMOVE_TRANSITION, REMOVE_TRANSITION_PROPERTY, REMOVE_ACTION_PROPERTY, REMOVE_PARAMETER,
   // eslint-disable-next-line max-len
-  GET_STATE_NAME,
+  GET_STATE_NAME, UPDATE_PROPERTY,
   UPDATE_COMPONENT_TYPE,
 } from './actionTypes';
 import {
   type State, type Variable,
 } from './representationTypes';
-import { string } from 'postcss-selector-parser';
 
 export const addState = (state: State, name: string, id: string) => {
   return {
@@ -53,6 +52,14 @@ export const addTransition = (payload: {
   type: ADD_TRANSITION,
   payload,
 });
+export const addProperty = (payload: {
+  stateName: string,
+  propertyKey: string,
+  componentPropertyType: string,
+}) => ({
+  type: ADD_PROPERTY,
+  payload,
+});
 
 export const renameState = (payload: {
   oldName: string,
@@ -84,16 +91,32 @@ export const removeContextVariable = (variable: Variable) => ({
   type: REMOVE_CONTEXT_VARIABLE,
   payload: { variable },
 });
+/**
+ * @deprecated This shouldn't be used. See removeTransition.
+ */
 export const removeAction = (sourceID: string, targetID: string) => ({
   type: REMOVE_ACTION,
   payload: { sourceID, targetID },
 });
-export const removeTransition = (sourceID: string, targetID: string) => ({
-  type: REMOVE_ACTION, // removing a transition is the same logic as removing an action
-  payload: { sourceID, targetID },
+export const removeTransition = (payload: {
+  sourcePortParentID: string,
+  sourcePortLabel: string,
+  targetPortLabel: string,
+  targetPortParentID: string,
+}) => ({
+  type: REMOVE_TRANSITION,
+  payload,
 });
 
 export const updateComponent = (payload: { stateName: string, componentType: string }) => ({
   type: UPDATE_COMPONENT_TYPE,
+  payload,
+});
+export const updateProperty = (payload: {
+  stateName: string,
+  propertyKey: string,
+  componentPropertyType: string,
+}) => ({
+  type: UPDATE_PROPERTY,
   payload,
 });

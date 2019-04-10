@@ -4,7 +4,7 @@ import {
   BaseWidget,
 } from 'storm-react-diagrams';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
-import { DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/PureComponents';
+import { DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/FunctionalComponents';
 import store from '../../redux/store';
 
 export interface ExistsNodeWidgetProps {

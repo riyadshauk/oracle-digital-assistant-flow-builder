@@ -2,12 +2,12 @@
 import { dump } from 'js-yaml';
 import {
   // eslint-disable-next-line max-len
-  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_VARIABLE, ADD_ACTION, ADD_TRANSITION,
+  ADD_STATE, ADD_CONTEXT_VARIABLE, ADD_PLATFORM, ADD_NAME, ADD_VARIABLE, ADD_ACTION, ADD_TRANSITION, ADD_TRANSITION_PROPERTY, ADD_ACTION_PROPERTY, ADD_PARAMETER, ADD_PROPERTY,
   // eslint-disable-next-line max-len
-  RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_VARIABLE_VALUE,
+  RENAME_STATE, RENAME_CONTEXT_VARIABLE, RENAME_PLATFORM, RENAME_NAME, RENAME_VARIABLE_VALUE, RENAME_TRANSITION_PROPERTY, RENAME_ACTION_PROPERTY, RENAME_PARAMETER,
   // eslint-disable-next-line max-len
-  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_VARIABLE, REMOVE_ACTION,
-  UPDATE_COMPONENT_TYPE,
+  REMOVE_STATE, REMOVE_CONTEXT_VARIABLE, REMOVE_PLATFORM, REMOVE_NAME, REMOVE_VARIABLE, REMOVE_ACTION, REMOVE_TRANSITION, REMOVE_TRANSITION_PROPERTY, REMOVE_ACTION_PROPERTY, REMOVE_PARAMETER,
+  UPDATE_COMPONENT_TYPE, UPDATE_PROPERTY,
 } from '../actionTypes';
 import {
   type State, type Variable, type RepresentationStore,
@@ -32,7 +32,7 @@ const initialStore = {
 
 const generateNextStateNameCount = (store: RepresentationStore, stateName: string) => {
   if (Object.prototype.hasOwnProperty.call(store.stateNameToCount, [stateName])) {
-    let count = store.stateNameToCount[stateName];
+    let count = store.stateNameToCount[stateName] + 1;
     let proposedName = stateName + count;
     while (Object.prototype.hasOwnProperty.call(store.representation.states, proposedName)) {
       count += 1;
@@ -167,10 +167,40 @@ export default (store: RepresentationStore = initialStore,
       sourceState.transitions.next = nextStore.idToName[targetID];
       return nextStore;
     }
+    case ADD_TRANSITION_PROPERTY: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
+    case ADD_ACTION_PROPERTY: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
+    case ADD_PARAMETER: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
+    case ADD_PROPERTY: {
+      const nextStore = { ...store };
+      const { stateName, propertyKey, componentPropertyType } = action.payload;
+      const state = nextStore.representation.states[stateName];
+      switch (componentPropertyType.toLowerCase()) {
+        case 'transition':
+          state.transitions[propertyKey] = '';
+          break;
+        case 'action':
+          state.transitions.actions[propertyKey] = '';
+          break;
+        case 'property':
+          state.properties[propertyKey] = '';
+          break;
+        default:
+          break;
+      }
+      return nextStore;
+    }
     case RENAME_STATE: {
       const nextStore = { ...store };
       const { oldName, newName } = action.payload;
-      const state = { ...nextStore.representation.states[oldName] };
       // disallow duplicate state names
       if (Object.prototype.hasOwnProperty.call(nextStore.representation.states, newName)) {
         return nextStore;
@@ -183,8 +213,27 @@ export default (store: RepresentationStore = initialStore,
           nextStore.idToName[id] = newName;
         }
       });
+      // update state name across all references in store
+      Object.values(nextStore.representation.states).forEach((state) => {
+        const processEntry = (o, entry) => {
+          if (entry[1] === oldName) {
+            o[entry[0]] = newName;
+          }
+        };
+        // $FlowFixMe: "missing in mixed"
+        Object.entries(state.properties).forEach(entry => processEntry(state.properties, entry));
+        // $FlowFixMe: "missing in mixed"
+        Object.entries(state.transitions).forEach(entry => processEntry(state.transitions, entry));
+        // $FlowFixMe: "missing in mixed"
+        if (state.transitions.actions) {
+          Object.entries(state.transitions.actions)
+            // $FlowFixMe: "missing in mixed"
+            .forEach(entry => processEntry(state.transitions.actions, entry));
+        }
+      });
+      const stateCopy = { ...nextStore.representation.states[oldName] };
       delete nextStore.representation.states[oldName];
-      nextStore.representation.states[newName] = state;
+      nextStore.representation.states[newName] = stateCopy;
       return nextStore;
     }
     case RENAME_CONTEXT_VARIABLE: {
@@ -232,6 +281,18 @@ export default (store: RepresentationStore = initialStore,
           properties[variableName] = newValue;
         }
       });
+      return nextStore;
+    }
+    case RENAME_TRANSITION_PROPERTY: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
+    case RENAME_ACTION_PROPERTY: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
+    case RENAME_PARAMETER: {
+      const nextStore = { ...store };
       return nextStore;
     }
     case REMOVE_STATE: {
@@ -285,6 +346,9 @@ export default (store: RepresentationStore = initialStore,
       const { sourceID, targetID } = action.payload;
       const targetName = nextStore.idToName[targetID];
       const state = nextStore.representation.states[nextStore.idToName[sourceID]];
+      if (!state) {
+        return nextStore;
+      }
       const { transitions } = state;
       const { actions } = transitions;
       if (transitions.next === targetName) {
@@ -303,6 +367,51 @@ export default (store: RepresentationStore = initialStore,
       }
       return nextStore;
     }
+    case REMOVE_TRANSITION: {
+      const newStore = { ...store };
+      const {
+        sourcePortParentID,
+        sourcePortLabel,
+        targetPortLabel,
+        targetPortParentID,
+      } = action.payload;
+      const sourceState = newStore.representation.states[newStore.idToName[sourcePortParentID]];
+      const targetPortParentName = newStore.idToName[targetPortParentID];
+      let targetName = targetPortLabel;
+      if (targetPortLabel === 'IN') {
+        targetName = targetPortParentName;
+      }
+      if (sourcePortLabel === 'variable') {
+        targetName = targetName.split(' –– ');
+        targetName = Array.isArray(targetName) && targetName.length > 0 ? targetName[0] : '';
+      }
+      const processEntry = (o, entry) => {
+        if (entry[1] === targetName) {
+          o[entry[0]] = '';
+        }
+      };
+      Object.entries(sourceState.properties)
+        .forEach(entry => processEntry(sourceState.properties, entry));
+      Object.entries(sourceState.transitions)
+        .forEach(entry => processEntry(sourceState.transitions, entry));
+      if (sourceState.transitions.actions) {
+        Object.entries(sourceState.transitions.actions)
+          .forEach(entry => processEntry(sourceState.transitions.actions, entry));
+      }
+      return newStore;
+    }
+    case REMOVE_TRANSITION_PROPERTY: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
+    case REMOVE_ACTION_PROPERTY: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
+    case REMOVE_PARAMETER: {
+      const nextStore = { ...store };
+      return nextStore;
+    }
     case UPDATE_COMPONENT_TYPE: {
       const nextStore = { ...store };
       const { stateName, componentType } = action.payload;
@@ -314,6 +423,15 @@ export default (store: RepresentationStore = initialStore,
         return nextStore;
       }
       state.component = componentType;
+      return nextStore;
+    }
+    case UPDATE_PROPERTY: {
+      const nextStore = { ...store };
+      const { stateName, transitionProperty } = action.payload;
+      const { transitions } = nextStore.representation.states[stateName];
+      if (!Object.prototype.hasOwnProperty.call(transitions, transitionProperty)) {
+        transitions[transitionProperty] = '';
+      }
       return nextStore;
     }
     default:
