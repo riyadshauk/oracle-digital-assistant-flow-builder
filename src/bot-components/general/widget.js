@@ -9,10 +9,10 @@ import {
   updateStatePropertyText,
 } from '../../helpers/helpers';
 import {
-  DefaultComponentNodeForm,
   DefaultComponentNodeBodyWithOneSpecialInPort,
   EditComponentTypeForm,
   AddProperty,
+  DefaultComponentNodeFormRawLabel,
 } from '../../helpers/FunctionalComponents';
 import store from '../../redux/store';
 
@@ -89,7 +89,7 @@ export default class GeneralNodeWidget extends
      */
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        {DefaultComponentNodeForm.apply(this, [this])}
+        {DefaultComponentNodeFormRawLabel.apply(this, [this])}
         {EditComponentTypeForm.apply(this, [this])}
         {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this, [
           // $FlowFixMe

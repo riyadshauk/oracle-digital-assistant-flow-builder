@@ -26,8 +26,18 @@ export class DefaultComponentPortLabel extends
 
   render() {
     const { model, isEditing } = this.props;
-    const port = <PortWidget node={model.getParent()} name={model.name} />;
+    const port = (
+      <PortWidget
+        node={model.getParent()}
+        name={model.name}
+      />
+    );
     const label = <div className="name">{model.label}</div>;
+
+    let buttonText = isEditing ? 'Cancel' : 'Edit Value';
+    if (model.parent.type === 'general-component') {
+      buttonText = isEditing ? 'Cancel' : 'Edit';
+    }
 
     return (
       <div {...this.getProps()}>
@@ -39,7 +49,7 @@ export class DefaultComponentPortLabel extends
           // https://medium.freecodecamp.org/reactjs-pass-parameters-to-event-handlers-ca1f5c422b9
           onClick={() => this.props.editClicked(port)}
         >
-          {isEditing ? 'Cancel' : 'Edit'}
+          {buttonText}
         </button>
       </div>
     );

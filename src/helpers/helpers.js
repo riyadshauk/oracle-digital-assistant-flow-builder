@@ -11,7 +11,6 @@ import {
   renameVariableValue,
   renameState,
   updateComponent,
-  updateTransitionProperty,
   addProperty,
   updateProperty,
 } from '../redux/actions';
@@ -74,21 +73,21 @@ export function addLabel() {
   }
 }
 
-export function updateLabel() {
+export function updateLabelWrapper(delimiter: string) {
   const { node } = this.props;
   const { propertyName, propertyValue } = this.state;
+  const re = RegExp(`${propertyName}${delimiter}`, 'g');
   if (!propertyName) {
     return; // do not allow un-named variables, here
   }
   const ports = node.getInPorts();
-  const re = RegExp(`${propertyName} –– `, 'g');
   let variableRenamed = false;
   ports.forEach((port) => {
     const portName = port.label;
     const occurrences = portName.match(re);
     if (occurrences !== undefined && occurrences && occurrences.length === 1) {
       variableRenamed = true;
-      const prevVals = portName.split(' –– ');
+      const prevVals = portName.split(delimiter);
       const prev = { name: prevVals[0], value: prevVals[1] };
       const cur = { name: propertyName, value: propertyValue };
       if (Object.prototype.hasOwnProperty.call(this.state.representation, 'context')) {
@@ -100,7 +99,7 @@ export function updateLabel() {
         }));
       }
 
-      port.label = `${propertyName} –– ${propertyValue}`;
+      port.label = `${propertyName}${delimiter}${propertyValue}`;
       this.setState(prevState => ({
         isEditing: {
           ...prevState.isEditing,
@@ -116,11 +115,22 @@ export function updateLabel() {
         addContextVariable({ name: propertyName, value: propertyValue }),
       );
     } else { // @todo
+      console.log('updateLabelWrapper variableRenamed, node', node);
       // store.dispatch( // not used for now
 
       // );
     }
   }
+}
+
+export function updateLabel() {
+  const delimiter = ' –– ';
+  updateLabelWrapper.apply(this, [delimiter]);
+}
+
+export function updateRawLabel() {
+  const delimiter = '';
+  updateLabelWrapper.apply(this, [delimiter]);
 }
 
 export function addRawLabel() {
@@ -130,30 +140,6 @@ export function addRawLabel() {
     return;
   }
   node.addInPort(propertyName);
-}
-
-export function updateRawLabel() {
-  const { node } = this.props;
-  const { propertyName } = this.state;
-  if (!isValidNewPropertyName(node, propertyName)) {
-    return;
-  }
-  const ports = node.getInPorts();
-  const re = RegExp(`${propertyName}`, 'g');
-  ports.forEach((port) => {
-    const portName = port.label;
-    const occurrences = portName.match(re);
-    if (occurrences !== undefined && occurrences && occurrences.length === 1) {
-      port.label = propertyName;
-      this.setState(prevState => ({
-        isEditing: {
-          ...prevState.isEditing,
-          [port.name]: false,
-        },
-      }));
-      // break;
-    }
-  });
 }
 
 export function updatePropertyName(event: SyntheticInputEvent<EventTarget>) {
@@ -205,6 +191,7 @@ export function updateStatePropertyText(
  */
 export function updateStateProperty(event: SyntheticInputEvent<EventTarget>) {
   event.preventDefault();
+  console.log('updateStateProperty invoked');
   store.dispatch(
     updateProperty({
       stateName: this.state.name, transitionProperty: event.target.value,
@@ -224,8 +211,6 @@ export function editClicked(port: any) {
         [port.props.name]: false,
       },
     }));
-
-    this.forceUpdate();
   } else {
     this.setState(prevState => ({
       isEditing: {
@@ -234,10 +219,15 @@ export function editClicked(port: any) {
       },
     }));
     const { label } = port.props.node.ports[port.props.name];
-    const vals = label.split('––');
-    const propertyName = vals[0].trim();
-    const propertyValue = vals[1].trim();
-    this.setState({ propertyName, propertyValue });
+    const { type } = port.props.node;
+    if (type !== 'general-component') {
+      const vals = label.split('––');
+      const propertyName = vals[0].trim();
+      const propertyValue = vals[1].trim();
+      this.setState({ propertyName, propertyValue });
+    } else {
+      this.setState({ propertyName: label, propertyValue: '' });
+    }
   }
 }
 
@@ -318,8 +308,6 @@ export function addOrUpdateProperty(event: Event) {
   }
   clearPropertyName.apply(this);
   clearPropertyValue.apply(this);
-  // @todo this may not be a correct approach: https://stackoverflow.com/questions/30626030/can-you-force-a-react-component-to-rerender-without-applying-setstate#answer-35004739
-  this.forceUpdate(); // force re-render (to fix bug when user needs to click again to re-render)
 }
 
 export function addOrUpdateRawProperty(event: Event) {
@@ -331,6 +319,4 @@ export function addOrUpdateRawProperty(event: Event) {
   }
   clearPropertyName.apply(this);
   clearPropertyValue.apply(this);
-  // @todo this may not be a correct approach: https://stackoverflow.com/questions/30626030/can-you-force-a-react-component-to-rerender-without-applying-setstate#answer-35004739
-  this.forceUpdate(); // force re-render (to fix bug when user needs to click again to re-render)
 }

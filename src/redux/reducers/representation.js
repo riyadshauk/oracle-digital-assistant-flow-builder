@@ -154,7 +154,11 @@ export default (store: RepresentationStore = initialStore,
         } // otherwise 'variable' attempted to link to a non-context variable, so do nothing
         return nextStore;
       }
-      sourceState.transitions.actions[actualActionName] = nextStore.idToName[targetID];
+      if (sourceState.transitions.actions !== undefined
+        && nextStore.idToName[targetID] !== undefined
+      ) {
+        sourceState.transitions.actions[actualActionName] = nextStore.idToName[targetID];
+      }
       return nextStore;
     }
     case ADD_TRANSITION: {

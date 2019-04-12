@@ -12,6 +12,7 @@ import {
   updateTitleName,
   editComponentTypeClicked,
   updateComponentType,
+  addOrUpdateRawProperty,
 } from './helpers';
 import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 
@@ -20,6 +21,26 @@ export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
   return (
     <form id="addVariable" onSubmit={addOrUpdateProperty.bind(thisWidget)}>
       <label htmlFor="addOrUpdateProperty">
+        Name:&nbsp;
+        <input type="text" value={propertyName} onChange={updatePropertyName.bind(thisWidget)} />
+        <br />
+        Value:&nbsp;
+        <input type="text" value={propertyValue} onChange={updatePropertyValue.bind(thisWidget)} />
+        <br />
+        <input
+          type="submit"
+          value={isEditing.apply(thisWidget) ? 'Save Edits' : 'Add Property'}
+        />
+      </label>
+    </form>
+  );
+};
+
+export const DefaultComponentNodeFormRawLabel = (thisWidget: BaseWidget) => {
+  const { propertyName, propertyValue } = thisWidget.state;
+  return (
+    <form id="addVariable" onSubmit={addOrUpdateRawProperty.bind(thisWidget)}>
+      <label htmlFor="addOrUpdateRawProperty">
         Name:&nbsp;
         <input type="text" value={propertyName} onChange={updatePropertyName.bind(thisWidget)} />
         <br />
@@ -191,7 +212,7 @@ export const AddProperty = (
 );
 
 /**
- * This is a special component, basically just for the Default bot-component.
+ * This is a special component, basically just for the General bot-component.
  */
 export const EditComponentTypeForm = (thisWidget: BaseWidget) => (
   <div className={thisWidget.bem('__title')}>

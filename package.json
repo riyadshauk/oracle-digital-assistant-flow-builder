@@ -12,6 +12,7 @@
     "react-dom": "^16.8.4",
     "react-redux": "^6.0.1",
     "react-scripts": "2.1.8",
+    "react-syntax-highlighter": "^10.2.1",
     "redux": "^4.0.1",
     "storm-react-diagrams": "^5.2.1"
   },
