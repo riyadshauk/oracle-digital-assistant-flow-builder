@@ -1,6 +1,7 @@
 // @flow
 /* eslint-disable react/no-will-update-set-state */
 /* eslint-disable react/no-did-update-set-state */
+/* eslint-disable no-undef */
 
 /**
  * This file is simply an extension of the React component known as
@@ -21,6 +22,7 @@
  * I may want to fix this issue in the future (maybe creating a PR to storm-react-diagrams?)
  * @see https://reactjs.org/docs/composition-vs-inheritance.html
  */
+import * as React from 'react';
 import * as _ from 'lodash';
 import {
   DiagramEngine,
@@ -31,9 +33,16 @@ import {
   LinkModel,
   BaseWidgetProps,
   DiagramWidget,
+  BaseModel,
+  Toolkit,
+  LinkLayerWidget,
+  NodeLayerWidget,
+  SelectingAction,
+  MoveCanvasAction,
 } from 'storm-react-diagrams';
 import store from '../redux/store';
-import { removeState, removeAction, removeTransition } from '../redux/actions';
+import { removeState, removeTransition } from '../redux/actions/representation';
+import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 
 export interface DiagramProps extends BaseWidgetProps {
   diagramEngine: DiagramEngine;
@@ -103,7 +112,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
    * Gets a model and element under the mouse cursor
    */
   // getMouseElement(event: Event): { model: BaseModel<BaseEntity,
-  //   BaseModelListener>; element: Element };
+  //   BaseModelListener>; element, };
 
   // fireAction()
 
@@ -114,8 +123,6 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
   // onMouseMove = (event: Event) => {
 
   // drawSelectionBox()
-
-  // render()
 
   onKeyUpPointer: (thisVar: EventTarget, ev: KeyboardEvent) => void;
 
@@ -194,8 +201,9 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
         // only delete items which are not locked
         if (!this.props.diagramEngine.isModelLocked(element)) {
           // dispatch any removal actions here (ie: removeState, removeAction, etc)
-          store.dispatch(removeState(element.id));
-          if (element
+          if (element instanceof AdvancedNodeModel) {
+            store.dispatch(removeState(element.id));
+          } else if (element
             && element.sourcePort && element.targetPort
             && element.targetPort.parent
             && element.targetPort.parent.id
@@ -320,5 +328,215 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
     this.state.document.removeEventListener('mousemove', this.onMouseMove);
     this.state.document.removeEventListener('mouseup', this.onMouseUp);
   };
+
+  /**
+   * Gets a model and element under the mouse cursor
+   */
+  getMouseElement(event: any): { model: BaseModel; element: Element } {
+    const { target } = event;
+    const diagramModel = this.props.diagramEngine.diagramModel;
+
+    // is it a port
+    const element = Toolkit.closest(target, '.port[data-name]');
+    if (element) {
+      const nodeElement = Toolkit.closest(target, '.node[data-nodeid]');
+      return {
+        model: diagramModel
+          .getNode(nodeElement.getAttribute('data-nodeid'))
+          .getPort(element.getAttribute('data-name')),
+        element,
+      };
+    }
+
+    // look for a point
+    element = Toolkit.closest(target, '.point[data-id]');
+    if (element) {
+      return {
+        model: diagramModel
+          .getLink(element.getAttribute('data-linkid'))
+          .getPointModel(element.getAttribute('data-id')),
+        element,
+      };
+    }
+
+    // look for a link
+    element = Toolkit.closest(target, '[data-linkid]');
+    if (element) {
+      return {
+        model: diagramModel.getLink(element.getAttribute('data-linkid')),
+        element,
+      };
+    }
+
+    // look for a node
+    element = Toolkit.closest(target, '.node[data-nodeid]');
+    if (element) {
+      return {
+        model: diagramModel.getNode(element.getAttribute('data-nodeid')),
+        element,
+      };
+    }
+
+    return null;
+  }
+
+  // @Riyad-edit: zooming onWheel issue in Chrome 73+
+  // @see: https://github.com/projectstorm/react-diagrams/issues/333 , https://github.com/facebook/react/issues/6436#issuecomment-479454289
+  BlockPageScroll = ({ children }) => {
+    const { useEffect, useRef } = React;
+    const scrollRef = useRef(null);
+    useEffect(() => {
+      const scrollEl = scrollRef.current;
+      const stopScroll = e => e.preventDefault();
+      scrollEl.addEventListener('wheel', stopScroll);
+      return () => scrollEl.removeEventListener('wheel', stopScroll);
+    }, []);
+    return (
+      <div ref={ scrollRef }>
+        {children}
+      </div>
+    );
+  }
+
+  render() {
+    const { diagramEngine } = this.props;
+    diagramEngine.setMaxNumberPointsPerLink(this.props.maxNumberPointsPerLink);
+    diagramEngine.setSmartRoutingStatus(this.props.smartRouting);
+    const diagramModel = diagramEngine.getDiagramModel();
+
+    return (
+      <this.BlockPageScroll>
+        <div
+          {...this.getProps()}
+          ref={ref => {
+            if (ref) {
+              this.props.diagramEngine.setCanvas(ref);
+            }
+          }}
+          onWheel={event => {
+            if (this.props.allowCanvasZoom) {
+              event.preventDefault();
+              event.stopPropagation();
+              const oldZoomFactor = diagramModel.getZoomLevel() / 100;
+              let scrollDelta = this.props.inverseZoom ? -event.deltaY : event.deltaY;
+              // check if it is pinch gesture
+              if (event.ctrlKey && scrollDelta % 1 !== 0) {
+                /*Chrome and Firefox sends wheel event with deltaY that
+                  have fractional part, also `ctrlKey` prop of the event is true
+                  though ctrl isn't pressed
+                */
+                scrollDelta /= 3;
+              } else {
+                scrollDelta /= 60;
+              }
+              if (diagramModel.getZoomLevel() + scrollDelta > 10) {
+                diagramModel.setZoomLevel(diagramModel.getZoomLevel() + scrollDelta);
+              }
+
+              const zoomFactor = diagramModel.getZoomLevel() / 100;
+
+              const boundingRect = event.currentTarget.getBoundingClientRect();
+              const clientWidth = boundingRect.width;
+              const clientHeight = boundingRect.height;
+              // compute difference between rect before and after scroll
+              const widthDiff = clientWidth * zoomFactor - clientWidth * oldZoomFactor;
+              const heightDiff = clientHeight * zoomFactor - clientHeight * oldZoomFactor;
+              // compute mouse coords relative to canvas
+              const clientX = event.clientX - boundingRect.left;
+              const clientY = event.clientY - boundingRect.top;
+
+              // compute width and height increment factor
+              const xFactor = (clientX - diagramModel.getOffsetX()) / oldZoomFactor / clientWidth;
+              const yFactor = (clientY - diagramModel.getOffsetY()) / oldZoomFactor / clientHeight;
+
+              diagramModel.setOffset(
+                diagramModel.getOffsetX() - widthDiff * xFactor,
+                diagramModel.getOffsetY() - heightDiff * yFactor
+              );
+
+              diagramEngine.enableRepaintEntities([]);
+              this.forceUpdate();
+            }
+          }}
+          onMouseDown={event => {
+            this.setState({ ...this.state, wasMoved: false });
+
+            diagramEngine.clearRepaintEntities();
+            const model = this.getMouseElement(event);
+            // the canvas was selected
+            if (model === null) {
+              // is it a multiple selection
+              if (event.shiftKey) {
+                const relative = diagramEngine.getRelativePoint(event.clientX, event.clientY);
+                this.startFiringAction(new SelectingAction(relative.x, relative.y));
+              } else {
+                // its a drag the canvas event
+                diagramModel.clearSelection();
+                this.startFiringAction(new MoveCanvasAction(event.clientX, event.clientY, diagramModel));
+              }
+            } else if (model.model instanceof PortModel) {
+              //i ts a port element, we want to drag a link
+              if (!this.props.diagramEngine.isModelLocked(model.model)) {
+                const relative = diagramEngine.getRelativeMousePoint(event);
+                const sourcePort = model.model;
+                const link = sourcePort.createLinkModel();
+                link.setSourcePort(sourcePort);
+
+                if (link) {
+                  link.removeMiddlePoints();
+                  if (link.getSourcePort() !== sourcePort) {
+                    link.setSourcePort(sourcePort);
+                  }
+                  link.setTargetPort(null);
+
+                  link.getFirstPoint().updateLocation(relative);
+                  link.getLastPoint().updateLocation(relative);
+
+                  diagramModel.clearSelection();
+                  link.getLastPoint().setSelected(true);
+                  diagramModel.addLink(link);
+
+                  this.startFiringAction(
+                    new MoveItemsAction(event.clientX, event.clientY, diagramEngine)
+                  );
+                }
+              } else {
+                diagramModel.clearSelection();
+              }
+            } else {
+              // its some or other element, probably want to move it
+              if (!event.shiftKey && !model.model.isSelected()) {
+                diagramModel.clearSelection();
+              }
+              model.model.setSelected(true);
+
+              this.startFiringAction(new MoveItemsAction(event.clientX, event.clientY, diagramEngine));
+            }
+            this.state.document.addEventListener('mousemove', this.onMouseMove);
+            this.state.document.addEventListener('mouseup', this.onMouseUp);
+          }}
+        >
+          {this.state.renderedNodes && (
+            <LinkLayerWidget
+              diagramEngine={diagramEngine}
+              pointAdded={(point: PointModel, event) => {
+                this.state.document.addEventListener('mousemove', this.onMouseMove);
+                this.state.document.addEventListener('mouseup', this.onMouseUp);
+                event.stopPropagation();
+                diagramModel.clearSelection(point);
+                this.setState({
+                  action: new MoveItemsAction(event.clientX, event.clientY, diagramEngine)
+                });
+              }}
+            />
+          )}
+          <NodeLayerWidget diagramEngine={diagramEngine} />
+          {this.state.action instanceof SelectingAction && this.drawSelectionBox()}
+        </div>
+      </this.BlockPageScroll>
+    );
+  }
+
+
 }
 ModifiedDiagramWidget.defaultProps = defaultProps;

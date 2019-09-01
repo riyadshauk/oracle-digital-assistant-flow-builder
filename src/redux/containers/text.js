@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import ListNodeWidget from '../../bot-components/list/widget';
+import TextNodeWidget from '../../bot-components/text/widget';
 import { addState } from '../actions/representation';
 
 const actionCreators = {
   addState,
 };
 
-export default connect(null, actionCreators)(ListNodeWidget);
+export default connect(null, actionCreators)(TextNodeWidget);

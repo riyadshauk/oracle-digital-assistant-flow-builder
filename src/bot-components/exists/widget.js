@@ -54,7 +54,7 @@ export default class ExistsNodeWidget extends
     };
     const { addState, node } = props;
     const { id } = node;
-    const stateNamePrefix = 'Exists';
+    const stateNamePrefix = node.name || 'Exists';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;

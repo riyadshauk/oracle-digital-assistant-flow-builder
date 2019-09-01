@@ -36,7 +36,7 @@ export default class ListNodeWidget extends
           options: '',
         },
         transitions: {
-          next: '',
+          return: '',
         },
       },
       name: '',
@@ -45,7 +45,7 @@ export default class ListNodeWidget extends
     };
     const { addState, node } = props;
     const { id } = node;
-    const stateNamePrefix = 'List';
+    const stateNamePrefix = node.name || 'List';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;

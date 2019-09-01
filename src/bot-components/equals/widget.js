@@ -61,7 +61,7 @@ export default class EqualsNodeWidget extends
     };
     const { addState, node } = props;
     const { id } = node;
-    const stateNamePrefix = 'Equals';
+    const stateNamePrefix = node.name || 'Equals';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;

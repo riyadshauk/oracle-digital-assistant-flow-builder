@@ -31,17 +31,19 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
       <div className="body">
         <div className="header">
           <div className="title">Digital Assistant Visual Builder</div>
+          <SourceCodeReference />
         </div>
         <div className="content">
           <TrayWidget>
-            <TrayItemWidget model={{ type: 'system-output' }} name="Output" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'condition-equals' }} name="Equals" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'condition-exists' }} name="Exists" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'system-list' }} name="List" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'output' }} name="Output" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'text' }} name="Text" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'equals' }} name="Equals" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'exists' }} name="Exists" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'list' }} name="List" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'intent' }} name="Intent" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'general-component' }} name="General Component" color="rgb(0,192,255)" />
+            <TrayItemWidget model={{ type: 'general' }} name="General Component" color="rgb(0,192,255)" />
           </TrayWidget>
           <div
             className="diagram-layer"
@@ -53,29 +55,32 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
                 case 'context':
                   node = new AdvancedNodeModel('Context', 'rgb(0,192,255)', 'context');
                   break;
-                case 'system-list':
-                  node = new AdvancedNodeModel('List', 'rgb(0,192,255)', 'system-list');
+                case 'list':
+                  node = new AdvancedNodeModel('List', 'rgb(0,192,255)', 'list');
                   break;
-                case 'condition-equals':
-                  node = new AdvancedNodeModel('Equals', 'rgb(0,192,255)', 'condition-equals');
+                case 'equals':
+                  node = new AdvancedNodeModel('Equals', 'rgb(0,192,255)', 'equals');
                   break;
-                case 'condition-exists':
-                  node = new AdvancedNodeModel('Exists', 'rgb(0,192,255)', 'condition-exists');
+                case 'exists':
+                  node = new AdvancedNodeModel('Exists', 'rgb(0,192,255)', 'exists');
                   break;
                 case 'set-variable':
                   node = new AdvancedNodeModel('Set Variable', 'rgb(0,192,255)', 'set-variable');
                   break;
-                case 'system-output':
-                  node = new AdvancedNodeModel('Output', 'rgb(0,192,255)', 'system-output');
+                case 'output':
+                  node = new AdvancedNodeModel('Output', 'rgb(0,192,255)', 'output');
                   break;
                 case 'copy-variables':
                   node = new AdvancedNodeModel('Copy Variables', 'rgb(0,192,255)', 'copy-variables');
                   break;
                 case 'intent':
-                  node = new AdvancedNodeModel('Copy Variables', 'rgb(0,192,255)', 'intent');
+                  node = new AdvancedNodeModel('Intent', 'rgb(0,192,255)', 'intent');
                   break;
-                case 'general-component':
-                  node = new AdvancedNodeModel('General Component', 'rgb(0,192,255)', 'general-component');
+                case 'text':
+                  node = new AdvancedNodeModel('Text', 'rgb(0,192,255)', 'text');
+                  break;
+                case 'general':
+                  node = new AdvancedNodeModel('General Component', 'rgb(0,192,255)', 'general');
                   break;
                 default:
                   node = new AdvancedNodeModel();
@@ -98,7 +103,6 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
             <ModifiedDiagramWidget className="srd-demo-canvas" diagramEngine={app.getDiagramEngine()} />
           </div>
           <div>
-            <SourceCodeReference />
             <Legend />
             <Representation />
           </div>

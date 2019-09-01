@@ -6,11 +6,11 @@ import {
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeBody, VariableNameComponentNodeForm } from '../../helpers/FunctionalComponents';
 
-export interface ContextNodeWidgetProps {
+export interface ParametersNodeWidgetProps {
   node: AdvancedNodeModel;
 }
 
-export interface ContextNodeWidgetState {
+export interface ParametersNodeWidgetState {
   propertyName: string;
   propertyValue: string;
   isEditing: boolean;
@@ -28,9 +28,9 @@ export interface ContextNodeWidgetState {
 /**
  * @author Riyad Shauk
  */
-export default class ContextNodeWidget extends BaseWidget<ContextNodeWidgetProps,
-  ContextNodeWidgetState> {
-  constructor(props: ContextNodeWidgetProps) {
+export default class ParametersNodeWidget extends BaseWidget<ParametersNodeWidgetProps,
+  ParametersNodeWidgetState> {
+  constructor(props: ParametersNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
       propertyName: '',

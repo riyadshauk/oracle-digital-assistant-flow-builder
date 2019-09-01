@@ -37,5 +37,6 @@ export type RepresentationStore = {
     },
   },
   idToName: {},
+  nameToID: {},
   stateNameToCount: {},
 };

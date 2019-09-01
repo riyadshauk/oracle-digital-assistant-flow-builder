@@ -6,21 +6,21 @@ import { registerNotEditable } from '../../helpers/helpers';
 import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/FunctionalComponents';
 import store from '../../redux/store';
 
-export interface SetVariableNodeWidgetProps {
+export interface TextNodeWidgetProps {
   node: AdvancedNodeModel;
   addState: Function;
 }
 
-export interface SetVariableNodeWidgetState {
+export interface TextNodeWidgetState {
   notEditable: {};
 }
 
 /**
  * @author Riyad Shauk
  */
-export default class SetVariableNodeWidget extends
-  BaseWidget<SetVariableNodeWidgetProps, SetVariableNodeWidgetState> {
-  constructor(props: SetVariableNodeWidgetProps) {
+export default class TextNodeWidget extends
+  BaseWidget<TextNodeWidgetProps, TextNodeWidgetState> {
+  constructor(props: TextNodeWidgetProps) {
     super('srd-default-node', props);
     this.state = {
       propertyName: '',
@@ -29,10 +29,10 @@ export default class SetVariableNodeWidget extends
       prevPropertyName: '',
       notEditable: {},
       representation: {
-        component: 'System.SetVariable',
+        component: 'System.Text',
         properties: {
+          prompt: '',
           variable: '',
-          value: '',
         },
         transitions: {
           return: '',
@@ -42,25 +42,25 @@ export default class SetVariableNodeWidget extends
       isEditingTitle: false,
       nameBeforeEditTitleClicked: '',
     };
-    const { addState, node } = this.props;
+    const { addState, node } = props;
     const { id } = node;
-    const stateNamePrefix = node.name || 'SetVariable';
+    const stateNamePrefix = node.name || 'Text';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe();
   }
 
   componentWillMount() {
     const { node } = this.props;
     node.addInPort('IN');
     node.addOutPort('OUT');
+    node.addInPort('prompt –– ');
     node.addInPort('variable');
     registerNotEditable.apply(this, ['IN', 'OUT', 'variable']);
-    node.addInPort('value –– ');
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe();
   }
 
   componentDidMount() {

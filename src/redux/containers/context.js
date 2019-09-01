@@ -4,7 +4,7 @@ import {
   addContextVariable,
   renameContextVariable,
   removeContextVariable,
-} from '../actions';
+} from '../actions/representation';
 
 const actionCreators = {
   addContextVariable,

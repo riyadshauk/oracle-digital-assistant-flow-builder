@@ -7,20 +7,20 @@ import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import ContextNodeWidget from '../../redux/containers/context';
+import ParametersNodeWidget from '../../redux/containers/parameters';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
-export default class ContextNodeFactory extends AbstractNodeFactory {
+export default class ParametersNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('context');
+    super('parameters');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <ContextNodeWidget node={node} />;
+    return <ParametersNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'context');
+    return new AdvancedNodeModel(undefined, undefined, 'parameters');
   }
 }

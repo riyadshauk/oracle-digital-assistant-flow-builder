@@ -43,7 +43,7 @@ export default class IntentNodeWidget extends
     };
     const { addState, node } = props;
     const { id } = node;
-    const stateNamePrefix = 'Intent';
+    const stateNamePrefix = node.name || 'Intent';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;

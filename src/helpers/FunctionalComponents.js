@@ -19,7 +19,7 @@ import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
   const { propertyName, propertyValue } = thisWidget.state;
   return (
-    <form id="addVariable" onSubmit={addOrUpdateProperty.bind(thisWidget)}>
+    <form onSubmit={addOrUpdateProperty.bind(thisWidget)}>
       <label htmlFor="addOrUpdateProperty">
         Name:&nbsp;
         <input type="text" value={propertyName} onChange={updatePropertyName.bind(thisWidget)} />
@@ -39,7 +39,7 @@ export const DefaultComponentNodeForm = (thisWidget: BaseWidget) => {
 export const DefaultComponentNodeFormRawLabel = (thisWidget: BaseWidget) => {
   const { propertyName, propertyValue } = thisWidget.state;
   return (
-    <form id="addVariable" onSubmit={addOrUpdateRawProperty.bind(thisWidget)}>
+    <form onSubmit={addOrUpdateRawProperty.bind(thisWidget)}>
       <label htmlFor="addOrUpdateRawProperty">
         Name:&nbsp;
         <input type="text" value={propertyName} onChange={updatePropertyName.bind(thisWidget)} />
@@ -59,7 +59,7 @@ export const DefaultComponentNodeFormRawLabel = (thisWidget: BaseWidget) => {
 export const VariableNameComponentNodeForm = (thisWidget: BaseWidget) => {
   const { propertyName, propertyValue } = thisWidget.state;
   return (
-    <form id="addVariable" onSubmit={addOrUpdateProperty.bind(thisWidget)}>
+    <form onSubmit={addOrUpdateProperty.bind(thisWidget)}>
       <label htmlFor="addOrUpdateProperty">
         Name:&nbsp;
         <input type="text" value={propertyName} onChange={updatePropertyName.bind(thisWidget)} />
@@ -102,14 +102,14 @@ export const DefaultComponentNodeBody = (node: NodeModel, thisWidget: BaseWidget
   </div>
 );
 
-// eslint-disable-next-line max-len
-export const DefaultComponentNodeBodyWithOneSpecialInPort = (node: NodeModel, thisWidget: BaseWidget, suffixElements?: React.Element<any>[]) => (
+export const DefaultComponentNodeBodyWithOneSpecialInPort = (
+  node: NodeModel, thisWidget: BaseWidget, suffixElements?: React.Element<any>[],
+) => (
   <div {...thisWidget.getProps()} style={{ background: node.color }}>
     <EditTitleForm thisWidget={thisWidget} />
     <div className={thisWidget.bem('__title')}>
       <div className={thisWidget.bem('__name')}>{node.name}</div>
       <div className={thisWidget.bem('__in')}>
-        {/* {thisWidget.generatePort.apply(thisWidget, [node.getInPorts()[0]])} */}
         {_.map(node.getInPorts(), generatePort.bind(thisWidget))[0]}
       </div>
     </div>
@@ -140,7 +140,6 @@ export const EditTitleForm = ({ thisWidget }: BaseWidget) => (
         ? (
           <div className={thisWidget.bem('__name')}>
             <form
-              id="modifyTitle"
               onSubmit={(event: SyntheticInputEvent<EventTarget>) => (
                 editTitleClicked.apply(thisWidget, [event])
               )}
@@ -174,17 +173,18 @@ export const AddProperty = (
   node: AdvancedNodeModel,
   onSubmit: (event: SyntheticInputEvent<EventTarget>,
     node: AdvancedNodeModel,
-    componentPropertyType: string) => void,
+    componentPropertyType: string,
+    path: [string]) => void,
   onChange: (event: SyntheticInputEvent<EventTarget>, componentPropertyType: string) => void,
   componentPropertyType: string,
+  path: [string],
 ) => (
   <div className={thisWidget.bem('__title')}>
     <div className={thisWidget.bem('__name')}>
       <form
-        id="modifyTitle"
         onSubmit={
           (event: SyntheticInputEvent<EventTarget>) => (
-            onSubmit.apply(thisWidget, [event, node, componentPropertyType])
+            onSubmit.apply(thisWidget, [event, node, componentPropertyType, path])
           )
         }
       >
@@ -222,7 +222,6 @@ export const EditComponentTypeForm = (thisWidget: BaseWidget) => (
         ? (
           <div className={thisWidget.bem('__name')}>
             <form
-              id="modifyTitle"
               onSubmit={(event: SyntheticInputEvent<EventTarget>) => (
                 editComponentTypeClicked.apply(thisWidget, [event])
               )}

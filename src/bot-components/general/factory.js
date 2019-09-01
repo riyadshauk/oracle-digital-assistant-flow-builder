@@ -9,7 +9,7 @@ import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export default class GeneralNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('general-component');
+    super('general');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
@@ -18,6 +18,6 @@ export default class GeneralNodeFactory extends AbstractNodeFactory {
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'general-component');
+    return new AdvancedNodeModel(undefined, undefined, 'general');
   }
 }

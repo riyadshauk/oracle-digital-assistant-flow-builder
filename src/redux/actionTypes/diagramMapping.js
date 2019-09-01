@@ -1,0 +1,5 @@
+export const MAP_NODE_TO_POSITION = 'MAP_NODE_TO_POSITION';
+export const MAP_NODE_NAME_TO_ID = 'MAP_NODE_NAME_TO_ID';
+export const MAP_PORT_NAME_TO_ID = 'MAP_PORT_NAME_TO_ID';
+
+export const UNMAP_NAME_TO_ID = 'UNMAP_NAME_TO_ID';

@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import GeneralNodeWidget from '../../bot-components/general/widget';
-import { addState } from '../actions';
+import { addState } from '../actions/representation';
 
 const actionCreators = {
   addState,

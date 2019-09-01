@@ -4,7 +4,9 @@ export default () => (
   <a
     href="https://github.com/riyadshauk/oracle-digital-assistant-flow-js/tree/master/builder-web-app"
     style={{
-      float: 'right',
+      backgroundColor: 'white',
+      position: 'fixed',
+      right: '10px',
     }}
   >
     <img
@@ -12,6 +14,9 @@ export default () => (
       src="GitHub-Mark-120px-plus.png"
       height="25"
       width="auto"
+      style={{
+        border: 'white solid 3px',
+      }}
     />
   </a>
 );

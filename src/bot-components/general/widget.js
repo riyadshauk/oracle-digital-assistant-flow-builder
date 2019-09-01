@@ -10,9 +10,9 @@ import {
 } from '../../helpers/helpers';
 import {
   DefaultComponentNodeBodyWithOneSpecialInPort,
-  EditComponentTypeForm,
   AddProperty,
-  DefaultComponentNodeFormRawLabel,
+  DefaultComponentNodeForm,
+  EditComponentTypeForm,
 } from '../../helpers/FunctionalComponents';
 import store from '../../redux/store';
 
@@ -45,7 +45,7 @@ export default class GeneralNodeWidget extends
         },
         transitions: {
           actions: {},
-          next: '',
+          return: '',
         },
       },
       name: '',
@@ -55,10 +55,11 @@ export default class GeneralNodeWidget extends
       currentTransitionPropertyText: '',
       currentActionPropertyText: '',
       currentPropertyPropertyText: '',
+      lastPath: [],
     };
     const { addState, node } = this.props;
     const { id } = node;
-    const stateNamePrefix = 'General';
+    const stateNamePrefix = node.name || 'General';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;
@@ -72,7 +73,8 @@ export default class GeneralNodeWidget extends
     const { node } = this.props;
     node.addInPort('IN');
     node.addOutPort('OUT');
-    registerNotEditable.apply(this, ['IN', 'OUT']);
+    node.addInPort('variable');
+    registerNotEditable.apply(this, ['IN', 'OUT', 'variable']);
   }
 
   componentDidMount() {
@@ -84,12 +86,9 @@ export default class GeneralNodeWidget extends
 
   render() {
     const { node } = this.props;
-    /**
-     * @todo buttons: Add Property, Add Variable, Add Transition, Add Action
-     */
     return (
       <div className="default-component-node" style={{ position: 'relative' }}>
-        {DefaultComponentNodeFormRawLabel.apply(this, [this])}
+        {/* {DefaultComponentNodeForm.apply(this, [this])} */}
         {EditComponentTypeForm.apply(this, [this])}
         {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this, [
           // $FlowFixMe
@@ -104,9 +103,9 @@ export default class GeneralNodeWidget extends
               })
             }
           </div>,
-          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Transition'),
-          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Action'),
-          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Property'),
+          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Property', ['transitions']),
+          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Transition', ['transitions']),
+          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Action', ['transitions', 'actions']),
         ]])}
       </div>
     );

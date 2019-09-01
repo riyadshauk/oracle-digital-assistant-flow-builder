@@ -2,16 +2,19 @@
 import * as React from 'react';
 import { BaseWidget, BaseWidgetProps, PortWidget } from 'storm-react-diagrams';
 import { AdvancedPortModel } from '../AdvancedDiagramFactories';
+import { definedSystemNodeTypes } from './constants';
 
 export interface DefaultComponentPortLabelProps extends BaseWidgetProps {
   model: AdvancedPortModel;
   editClicked: Function;
+  removeClicked: Function;
 }
 
 export interface DefaultComponentPortLabelState { }
 
 /**
  * @author Dylan Vorster
+ * @author Riyad Shauk
  */
 // eslint-disable-next-line import/prefer-default-export
 export class DefaultComponentPortLabel extends
@@ -26,17 +29,44 @@ export class DefaultComponentPortLabel extends
 
   render() {
     const { model, isEditing } = this.props;
+    const node = model.getParent();
     const port = (
       <PortWidget
-        node={model.getParent()}
+        node={node}
         name={model.name}
       />
     );
     const label = <div className="name">{model.label}</div>;
 
     let buttonText = isEditing ? 'Cancel' : 'Edit Value';
-    if (model.parent.type === 'general-component') {
-      buttonText = isEditing ? 'Cancel' : 'Edit';
+    if (!definedSystemNodeTypes.has(model.parent.type) && model.label.indexOf('––') === -1) {
+      buttonText = false;
+    }
+
+    let editButton = (
+      <button
+        type="button"
+        // https://medium.freecodecamp.org/reactjs-pass-parameters-to-event-handlers-ca1f5c422b9
+        onClick={() => this.props.editClicked(port)}
+      >
+        {buttonText}
+      </button>
+    );
+    if (!buttonText) {
+      editButton = undefined;
+    }
+
+    let removeButton = (
+      <button
+        type="button"
+        // https://medium.freecodecamp.org/reactjs-pass-parameters-to-event-handlers-ca1f5c422b9
+        onClick={() => this.props.removeClicked(port)}
+      >
+        Remove
+      </button>
+    );
+    if (definedSystemNodeTypes.has(node.type)) {
+      removeButton = undefined;
     }
 
     return (
@@ -44,13 +74,8 @@ export class DefaultComponentPortLabel extends
         {model.in ? port : label}
         {model.in ? label : port}
         {/* add Edit button here */}
-        <button
-          type="button"
-          // https://medium.freecodecamp.org/reactjs-pass-parameters-to-event-handlers-ca1f5c422b9
-          onClick={() => this.props.editClicked(port)}
-        >
-          {buttonText}
-        </button>
+        {editButton}
+        {removeButton}
       </div>
     );
   }

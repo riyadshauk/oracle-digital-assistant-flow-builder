@@ -9,7 +9,7 @@ import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
 export default class EqualsNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('condition-equals');
+    super('equals');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
@@ -18,6 +18,6 @@ export default class EqualsNodeFactory extends AbstractNodeFactory {
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'condition-equals');
+    return new AdvancedNodeModel(undefined, undefined, 'equals');
   }
 }

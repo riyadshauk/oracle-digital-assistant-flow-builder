@@ -1,26 +1,23 @@
 // @flow
 /* eslint-disable class-methods-use-this */
-/**
- * Note: this should be a singleton
- */
 import * as React from 'react';
 import {
   AbstractNodeFactory, NodeModel, DiagramEngine,
 } from 'storm-react-diagrams';
-import ContextNodeWidget from '../../redux/containers/context';
+import TextNodeWidget from '../../redux/containers/text';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 
-export default class ContextNodeFactory extends AbstractNodeFactory {
+export default class extends AbstractNodeFactory {
   constructor() {
-    super('context');
+    super('text');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
     node: NodeModel): any {
-    return <ContextNodeWidget node={node} />;
+    return <TextNodeWidget node={node} />;
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'context');
+    return new AdvancedNodeModel(undefined, undefined, 'text');
   }
 }

@@ -9,7 +9,7 @@ import {
   DefaultLinkModel,
   PortModel,
 } from 'storm-react-diagrams';
-import { addAction, addTransition } from '../redux/actions';
+import { addAction, addTransition } from '../redux/actions/representation';
 import store from '../redux/store';
 
 export interface DefaultLinkModelListener extends LinkModelListener {

@@ -5,16 +5,20 @@
   "private": true,
   "dependencies": {
     "babel-eslint": "^10.0.1",
+    "codemirror": "^5.48.4",
     "flow-bin": "^0.94.0",
     "js-yaml": "^3.13.0",
     "lodash": "^4.17.11",
     "node-sass": "^4.11.0",
     "react": "^16.8.4",
+    "react-codemirror": "^1.0.0",
+    "react-collapsible": "^2.6.0",
     "react-dom": "^16.8.4",
     "react-redux": "^6.0.1",
     "react-scripts": "2.1.8",
     "react-syntax-highlighter": "^10.2.1",
     "redux": "^4.0.1",
+    "redux-devtools-extension": "^2.13.8",
     "storm-react-diagrams": "^5.2.1"
   },
   "scripts": {

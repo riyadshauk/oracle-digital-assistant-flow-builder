@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import CopyVariablesNodeWidget from '../../bot-components/copyVariables/widget';
-import { addState } from '../actions';
+import { addState } from '../actions/representation';
 
 const actionCreators = {
   addState,

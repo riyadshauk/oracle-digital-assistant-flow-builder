@@ -1,10 +1,9 @@
 // @flow
+/* eslint-env browser */
 import {
-  NodeModel,
   DiagramModel,
   DiagramEngine,
 } from 'storm-react-diagrams';
-// $FlowFixMe
 import './sass/main.scss';
 import { AdvancedLinkFactory, AdvancedNodeModel } from './AdvancedDiagramFactories';
 import ContextNodeFactory from './bot-components/context/factory';
@@ -16,16 +15,23 @@ import SetVariableNodeFactory from './bot-components/setVariable/factory';
 import OutputNodeFactory from './bot-components/output/factory';
 import CopyVariablesNodeFactory from './bot-components/copyVariables/factory';
 import IntentNodeFactory from './bot-components/intent/factory';
+import TextNodeFactory from './bot-components/text/factory';
+import store from './redux/store';
+import ParametersNodeFactory from './bot-components/parameters/factory';
+import SystemVariablesNodeFactory from './bot-components/systemVariables/factory';
+import { mapNameToID } from './redux/actions/representation';
+import generateDiagramFromYAML from './generateDiagramFromYAML';
 
 /**
  * @author Dylan Vorster
+ * @author Riyad Shauk
  */
 export default class App {
   activeModel: DiagramModel;
 
   diagramEngine: DiagramEngine;
 
-  contextNode: NodeModel;
+  variablesAdded: Event;
 
   constructor() {
     this.diagramEngine = new DiagramEngine();
@@ -40,15 +46,33 @@ export default class App {
     this.diagramEngine.registerNodeFactory(new OutputNodeFactory());
     this.diagramEngine.registerNodeFactory(new CopyVariablesNodeFactory());
     this.diagramEngine.registerNodeFactory(new IntentNodeFactory());
+    this.diagramEngine.registerNodeFactory(new TextNodeFactory());
+    this.diagramEngine.registerNodeFactory(new ParametersNodeFactory());
+    this.diagramEngine.registerNodeFactory(new SystemVariablesNodeFactory());
+    window.newModel = this.newModel;
     this.newModel();
   }
 
   newModel() {
-    this.activeModel = new DiagramModel();
-    this.diagramEngine.setDiagramModel(this.activeModel);
-    this.contextNode = new AdvancedNodeModel('Context', undefined, 'context');
-    this.contextNode.setPosition(25, 30);
-    this.activeModel.addAll(this.contextNode);
+    window.activeModel = new DiagramModel();
+    this.diagramEngine.setDiagramModel(window.activeModel);
+
+    const parametersNode = new AdvancedNodeModel('Parameters', undefined, 'parameters');
+    store.dispatch(mapNameToID(parametersNode));
+    parametersNode.setPosition(25, 30);
+
+    const systemVariablesNode = new AdvancedNodeModel('SystemVariables', undefined, 'systemVariables');
+    store.dispatch(mapNameToID(systemVariablesNode));
+    systemVariablesNode.setPosition(250, 30);
+
+    const contextNode = new AdvancedNodeModel('Context', undefined, 'context');
+    store.dispatch(mapNameToID(contextNode));
+    contextNode.setPosition(475, 30);
+
+    window.diagramEngine = this.diagramEngine;
+    window.activeModel.addAll(parametersNode, systemVariablesNode, contextNode);
+
+    generateDiagramFromYAML('');
   }
 
   getActiveDiagram(): DiagramModel {

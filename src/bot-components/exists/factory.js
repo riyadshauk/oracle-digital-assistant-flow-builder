@@ -9,7 +9,7 @@ import ConditionExistsNodeWidget from '../../redux/containers/exists';
 
 export default class ExistsNodeFactory extends AbstractNodeFactory {
   constructor() {
-    super('condition-exists');
+    super('exists');
   }
 
   generateReactWidget(diagramEngine: DiagramEngine,
@@ -18,6 +18,6 @@ export default class ExistsNodeFactory extends AbstractNodeFactory {
   }
 
   getNewInstance() {
-    return new AdvancedNodeModel(undefined, undefined, 'condition-exists');
+    return new AdvancedNodeModel(undefined, undefined, 'exists');
   }
 }

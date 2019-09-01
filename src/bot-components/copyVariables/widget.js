@@ -35,7 +35,7 @@ export default class CopyVariablesNodeWidget extends
           to: '',
         },
         transitions: {
-          next: '',
+          return: '',
         },
       },
       name: '',
@@ -44,7 +44,7 @@ export default class CopyVariablesNodeWidget extends
     };
     const { addState, node } = props;
     const { id } = node;
-    const stateNamePrefix = 'CopyVariables';
+    const stateNamePrefix = node.name || 'CopyVariables';
     addState(this.state.representation, stateNamePrefix, id);
     this.state.name = store.getState().representation.idToName[node.id];
     this.state.nameBeforeEditTitleClicked = this.state.name;

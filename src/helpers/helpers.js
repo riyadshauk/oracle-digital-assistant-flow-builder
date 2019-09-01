@@ -12,10 +12,14 @@ import {
   renameState,
   updateComponent,
   addProperty,
-  updateProperty,
-} from '../redux/actions';
+  removeProperty,
+  renamePropertyValue,
+  addParameter,
+  addSystemVariable,
+} from '../redux/actions/representation';
 import store from '../redux/store';
 import { AdvancedPortModel, AdvancedNodeModel } from '../AdvancedDiagramFactories';
+import { definedSystemNodeTypes, definedSystemComponents } from './constants';
 
 export function registerNotEditable(...variableNames: string[]) {
   variableNames.forEach((variableName) => {
@@ -39,7 +43,11 @@ export function clearPropertyValue() {
 const alreadyHasPropertyWithSameName = (node: NodeModel, propertyName: string): boolean => {
   const ports = [...node.getInPorts(), ...node.getOutPorts()];
   for (let i = 0; i < ports.length; i += 1) {
-    const re = RegExp(`${propertyName} –– `, 'g');
+    /**
+     * force re to check from ^start of string
+     * @todo perhaps add test case for this ('size –– ' vs 'user.lastsize –– ')
+     */
+    const re = RegExp(`^${propertyName} –– `, 'g');
     const portName = ports[i].label;
     const occurrences = portName.match(re);
     if (occurrences !== undefined && occurrences && occurrences.length === 1) {
@@ -66,10 +74,38 @@ export function addLabel() {
     return;
   }
   node.addInPort(`${propertyName} –– ${propertyValue}`);
-  if (Object.prototype.hasOwnProperty.call(this.state.representation, 'context')) {
-    store.dispatch(
-      addContextVariable({ name: propertyName, value: propertyValue }),
-    );
+  switch (node.name) {
+    case 'Context':
+      store.dispatch(
+        addContextVariable({ name: propertyName, value: propertyValue }),
+      );
+      break;
+    case 'Parameters':
+      store.dispatch(
+        addParameter({ name: propertyName, value: propertyValue }),
+      );
+      break;
+    case 'SystemVariables':
+      store.dispatch(
+        addSystemVariable({ name: propertyName, value: propertyValue }),
+      );
+      break;
+    default:
+      break;
+  }
+  try {
+    if (!definedSystemComponents.has(this.state.representation.component)) {
+      store.dispatch(
+        addProperty({
+          stateName: this.state.name,
+          propertyKey: propertyName,
+          propertyValue,
+          componentPropertyType: 'somethingWhatever',
+        }),
+      );
+    }
+  } catch (err) {
+    // no
   }
 }
 
@@ -92,6 +128,11 @@ export function updateLabelWrapper(delimiter: string) {
       const cur = { name: propertyName, value: propertyValue };
       if (Object.prototype.hasOwnProperty.call(this.state.representation, 'context')) {
         store.dispatch(renameContextVariable({ prev, cur }));
+      } else if (!definedSystemNodeTypes.has(port.parent.type)) {
+        const stateName = this.state.name;
+        store.dispatch(renamePropertyValue({
+          propertyName: prevVals[0], newValue: propertyValue, stateName, portID: port.id,
+        }));
       } else {
         const stateName = this.state.name;
         store.dispatch(renameVariableValue({
@@ -115,7 +156,6 @@ export function updateLabelWrapper(delimiter: string) {
         addContextVariable({ name: propertyName, value: propertyValue }),
       );
     } else { // @todo
-      console.log('updateLabelWrapper variableRenamed, node', node);
       // store.dispatch( // not used for now
 
       // );
@@ -185,20 +225,6 @@ export function updateStatePropertyText(
   this.setState({ [currentPropertyText]: preservedValue });
 }
 
-/**
- * @todo see updateProperty action creator + corresponding portion in representation (next to do)
- * @param {*} event 
- */
-export function updateStateProperty(event: SyntheticInputEvent<EventTarget>) {
-  event.preventDefault();
-  console.log('updateStateProperty invoked');
-  store.dispatch(
-    updateProperty({
-      stateName: this.state.name, transitionProperty: event.target.value,
-    }),
-  );
-}
-
 export function isEditing() {
   return Object.values(this.state.isEditing).reduce((prev, cur) => (prev || cur), false);
 }
@@ -219,16 +245,25 @@ export function editClicked(port: any) {
       },
     }));
     const { label } = port.props.node.ports[port.props.name];
-    const { type } = port.props.node;
-    if (type !== 'general-component') {
-      const vals = label.split('––');
-      const propertyName = vals[0].trim();
-      const propertyValue = vals[1].trim();
-      this.setState({ propertyName, propertyValue });
-    } else {
-      this.setState({ propertyName: label, propertyValue: '' });
-    }
+    const vals = label.split('––');
+    const propertyName = vals[0].trim();
+    const propertyValue = vals[1].trim();
+    this.setState({ propertyName, propertyValue });
   }
+}
+
+export function removeClicked(port: any) {
+  if (definedSystemNodeTypes.has(port.props.node.type)) {
+    return;
+  }
+  const { label, id } = port.props.node.ports[port.props.name];
+  const vals = label.split('––');
+  const propertyName = vals[0].trim();
+  delete port.props.node.ports[port.props.name];
+  this.forceUpdate();
+  store.dispatch(
+    removeProperty(port.props.node, propertyName, id),
+  );
 }
 
 export function editTitleClicked(event: SyntheticInputEvent<EventTarget>) {
@@ -250,7 +285,6 @@ export function editComponentTypeClicked(event: SyntheticInputEvent<EventTarget>
     this.setState(prevState => ({
       isEditingComponentType: false,
       nameBeforeEditTitleClicked: prevState.component,
-      // component: prevState.component,
     }));
     updateComponentTypeName.apply(this, [event]);
   } else {
@@ -264,6 +298,7 @@ export function addPropertyClicked(
   event: SyntheticInputEvent<EventTarget>,
   node: AdvancedNodeModel,
   componentPropertyType: string,
+  path: [string],
 ) {
   event.preventDefault();
   const propertyKey = `current${componentPropertyType}PropertyText`;
@@ -274,10 +309,13 @@ export function addPropertyClicked(
       addProperty({
         stateName: this.state.name,
         propertyKey: this.state[propertyKey],
-        componentPropertyType,
+        componentPropertyType: componentPropertyType.toLowerCase(),
+        path: path || this.state.lastPath,
+        portID: Object.values(node.ports)
+          .filter(port => port.label === this.state[propertyKey])[0].id,
       }),
     );
-    this.setState({ [propertyKey]: '' });
+    this.setState({ [propertyKey]: '', lastPath: path });
   }
 }
 
@@ -293,6 +331,8 @@ export function generatePort(port: AdvancedPortModel) {
       key={port.id}
       // eslint-disable-next-line react/jsx-no-bind
       editClicked={editClicked.bind(this)}
+      // eslint-disable-next-line react/jsx-no-bind
+      removeClicked={removeClicked.bind(this)}
       // eslint-disable-next-line
       isEditing={this.state.isEditing[port.name]}
     />
