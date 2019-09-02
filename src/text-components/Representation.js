@@ -45,6 +45,16 @@ export default class extends Component<RepresentationProps, RepresentationState>
   };
 
   editButtonClicked = () => {
+    // eslint-disable-next-line react/destructuring-assignment
+    if (this.state.isTyping
+      // eslint-disable-next-line react/destructuring-assignment
+      && dump(store.getState().representation.representation) !== this.state.code) {
+      // eslint-disable-next-line no-alert
+      const sure = window.confirm('Are you sure you want to disregard any edits?');
+      if (!sure) {
+        return;
+      }
+    }
     this.setState(({ isTyping, code }) => ({
       code: !isTyping ? dump(store.getState().representation.representation) : code,
       isTyping: !isTyping,
@@ -63,7 +73,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
 
   loadPizzaBotExampleButtonClicked = () => {
     // eslint-disable-next-line no-alert
-    const sure = window.confirm('Are you sure you want to do that?');
+    const sure = window.confirm('Are you sure you want to load a pizza bot example flow?');
     if (!sure) {
       return;
     }
@@ -75,7 +85,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
 
   resetFlowButtonClicked = () => {
     // eslint-disable-next-line no-alert
-    const sure = window.confirm('Are you sure you want to do that?');
+    const sure = window.confirm('Are you sure you want to reset the current flow?');
     if (!sure) {
       return;
     }
@@ -151,7 +161,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
     return (
       <React.Fragment>
         <h2>
-          YAML Representation of Diagram:
+          Dialogue Flow YAML (representation of diagram):
         </h2>
         {saveButton}
         {editButton}
