@@ -2,7 +2,7 @@ import React from 'react';
 
 export default () => (
   <a
-    href="https://github.com/riyadshauk/oracle-digital-assistant-flow-js/tree/master/builder-web-app"
+    href="https://github.com/riyadshauk/oracle-digital-assistant-flow-builder"
     style={{
       backgroundColor: 'white',
       position: 'fixed',
