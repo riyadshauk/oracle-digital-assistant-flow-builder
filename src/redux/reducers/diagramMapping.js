@@ -5,15 +5,17 @@ import {
   MAP_NODE_NAME_TO_ID,
   MAP_PORT_NAME_TO_ID,
   UNMAP_NAME_TO_ID,
+  SET_SELECTED_LINK,
 } from '../actionTypes/diagramMapping';
 
-const initialStore: DiagramMappingStore = {
+const initialStore: () => DiagramMappingStore = () => ({
   nameToID: {},
   idToPosition: {},
   lastNodeYPosition: 300,
-};
+  selectedLink: null,
+});
 
-export default (store: DiagramMappingStore = initialStore,
+export default (store: DiagramMappingStore = initialStore(),
   action: { type: string, payload: { [key: string]: any } }) => {
   const { type, payload } = action;
   switch (type) {
@@ -48,6 +50,13 @@ export default (store: DiagramMappingStore = initialStore,
       const { node } = payload;
       delete store.nameToID[node.name];
       return { ...store };
+    }
+    case SET_SELECTED_LINK: {
+      const { link } = payload;
+      return {
+        ...store,
+        selectedLink: link,
+      };
     }
     default:
       return store;

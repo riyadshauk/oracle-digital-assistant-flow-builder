@@ -43,6 +43,7 @@ import {
 import store from '../redux/store';
 import { removeState, removeTransition } from '../redux/actions/representation';
 import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
+import { setSelectedLink } from '../redux/actions/diagramMapping';
 
 export interface DiagramProps extends BaseWidgetProps {
   diagramEngine: DiagramEngine;
@@ -82,7 +83,7 @@ export const defaultProps: DiagramProps = {
   smartRouting: false,
   /**
    * @todo store this in Redux state so can over-write deleteKeys to be []
-   * when typing (ie in DefaultComponentNodeWidget)
+   * when typing (ie in DefaultComponentNodeWidget)?
    */
   deleteKeys: [
     46,
@@ -120,7 +121,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
 
   // startFiringAction(action: BaseAction)
 
-  // onMouseMove = (event: Event) => {
+  // onMouseMove(event) {
 
   // drawSelectionBox()
 
@@ -201,10 +202,18 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
         // only delete items which are not locked
         if (!this.props.diagramEngine.isModelLocked(element)) {
           // dispatch any removal actions here (ie: removeState, removeAction, etc)
-          if (element instanceof AdvancedNodeModel) {
+          if (
+            element instanceof AdvancedNodeModel
+            && element.type !== 'context'
+            && element.type !== 'parameters'
+            && element.type !== 'systemVariables'
+          ) {
             store.dispatch(removeState(element.id));
-          } else if (element
-            && element.sourcePort && element.targetPort
+            element.remove();
+          } else if (
+            element
+            && element.sourcePort
+            && element.targetPort
             && element.targetPort.parent
             && element.targetPort.parent.id
           ) {
@@ -216,8 +225,6 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
                 targetPortLabel: element.targetPort.label,
               }),
             );
-            element.remove();
-          } else if (element.type !== 'context') {
             element.remove();
           }
         }
@@ -334,10 +341,10 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
    */
   getMouseElement(event: any): { model: BaseModel; element: Element } {
     const { target } = event;
-    const diagramModel = this.props.diagramEngine.diagramModel;
+    const { diagramModel } = this.props.diagramEngine;
 
     // is it a port
-    const element = Toolkit.closest(target, '.port[data-name]');
+    let element = Toolkit.closest(target, '.port[data-name]');
     if (element) {
       const nodeElement = Toolkit.closest(target, '.node[data-nodeid]');
       return {
@@ -362,8 +369,10 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
     // look for a link
     element = Toolkit.closest(target, '[data-linkid]');
     if (element) {
+      const link = diagramModel.getLink(element.getAttribute('data-linkid'));
+      store.dispatch(setSelectedLink(link));
       return {
-        model: diagramModel.getLink(element.getAttribute('data-linkid')),
+        model: link,
         element,
       };
     }
@@ -392,7 +401,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
       return () => scrollEl.removeEventListener('wheel', stopScroll);
     }, []);
     return (
-      <div ref={ scrollRef }>
+      <div ref={scrollRef}>
         {children}
       </div>
     );
@@ -406,14 +415,15 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
 
     return (
       <this.BlockPageScroll>
+        { /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */ }
         <div
           {...this.getProps()}
-          ref={ref => {
+          ref={(ref) => {
             if (ref) {
               this.props.diagramEngine.setCanvas(ref);
             }
           }}
-          onWheel={event => {
+          onWheel={(event) => {
             if (this.props.allowCanvasZoom) {
               event.preventDefault();
               event.stopPropagation();
@@ -421,7 +431,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
               let scrollDelta = this.props.inverseZoom ? -event.deltaY : event.deltaY;
               // check if it is pinch gesture
               if (event.ctrlKey && scrollDelta % 1 !== 0) {
-                /*Chrome and Firefox sends wheel event with deltaY that
+                /* Chrome and Firefox sends wheel event with deltaY that
                   have fractional part, also `ctrlKey` prop of the event is true
                   though ctrl isn't pressed
                 */
@@ -451,15 +461,15 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
 
               diagramModel.setOffset(
                 diagramModel.getOffsetX() - widthDiff * xFactor,
-                diagramModel.getOffsetY() - heightDiff * yFactor
+                diagramModel.getOffsetY() - heightDiff * yFactor,
               );
 
               diagramEngine.enableRepaintEntities([]);
               this.forceUpdate();
             }
           }}
-          onMouseDown={event => {
-            this.setState({ ...this.state, wasMoved: false });
+          onMouseDown={(event) => {
+            this.setState({ wasMoved: false });
 
             diagramEngine.clearRepaintEntities();
             const model = this.getMouseElement(event);
@@ -472,10 +482,12 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
               } else {
                 // its a drag the canvas event
                 diagramModel.clearSelection();
-                this.startFiringAction(new MoveCanvasAction(event.clientX, event.clientY, diagramModel));
+                this.startFiringAction(
+                  new MoveCanvasAction(event.clientX, event.clientY, diagramModel),
+                );
               }
             } else if (model.model instanceof PortModel) {
-              //i ts a port element, we want to drag a link
+              // its a port element, we want to drag a link
               if (!this.props.diagramEngine.isModelLocked(model.model)) {
                 const relative = diagramEngine.getRelativeMousePoint(event);
                 const sourcePort = model.model;
@@ -497,7 +509,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
                   diagramModel.addLink(link);
 
                   this.startFiringAction(
-                    new MoveItemsAction(event.clientX, event.clientY, diagramEngine)
+                    new MoveItemsAction(event.clientX, event.clientY, diagramEngine),
                   );
                 }
               } else {
@@ -510,7 +522,9 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
               }
               model.model.setSelected(true);
 
-              this.startFiringAction(new MoveItemsAction(event.clientX, event.clientY, diagramEngine));
+              this.startFiringAction(
+                new MoveItemsAction(event.clientX, event.clientY, diagramEngine),
+              );
             }
             this.state.document.addEventListener('mousemove', this.onMouseMove);
             this.state.document.addEventListener('mouseup', this.onMouseUp);
@@ -525,7 +539,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
                 event.stopPropagation();
                 diagramModel.clearSelection(point);
                 this.setState({
-                  action: new MoveItemsAction(event.clientX, event.clientY, diagramEngine)
+                  action: new MoveItemsAction(event.clientX, event.clientY, diagramEngine),
                 });
               }}
             />
@@ -536,7 +550,5 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
       </this.BlockPageScroll>
     );
   }
-
-
 }
 ModifiedDiagramWidget.defaultProps = defaultProps;

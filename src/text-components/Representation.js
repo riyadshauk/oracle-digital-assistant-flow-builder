@@ -66,7 +66,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
     this.setState(({ isTyping }) => ({
       isTyping: !isTyping,
     }));
-    store.dispatch(resetRepresentation());
+    store.dispatch({ type: 'RESET_STATE' });
     window.newModel();
     setTimeout(() => generateDiagramFromYAML(code));
   };
@@ -78,7 +78,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
       return;
     }
     this.setState({ isTyping: false });
-    store.dispatch(resetRepresentation());
+    store.dispatch({ type: 'RESET_STATE' });
     window.newModel();
     setTimeout(() => generateDiagramFromYAML(pizzaBotExample));
   };
@@ -89,7 +89,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
     if (!sure) {
       return;
     }
-    store.dispatch(resetRepresentation());
+    store.dispatch({ type: 'RESET_STATE' });
     window.newModel();
     setTimeout(() => generateDiagramFromYAML(''));
   };

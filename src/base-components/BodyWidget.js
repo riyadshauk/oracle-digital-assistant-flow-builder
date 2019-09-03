@@ -8,6 +8,7 @@ import ModifiedDiagramWidget from './ModifiedDiagramWidget';
 import Legend from '../text-components/Legend';
 import Representation from '../text-components/Representation';
 import SourceCodeReference from '../text-components/SourceCodeReference';
+import SelectedLink from '../text-components/SelectedLink';
 
 export type BodyWidgetProps = {
   app: App;
@@ -44,6 +45,7 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
             <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
             <TrayItemWidget model={{ type: 'general' }} name="General Component" color="rgb(0,192,255)" />
+            <SelectedLink />
           </TrayWidget>
           <div
             className="diagram-layer"

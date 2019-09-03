@@ -6,7 +6,7 @@ export default () => (
     style={{
       backgroundColor: 'white',
       position: 'fixed',
-      right: '10px',
+      right: '0px',
     }}
   >
     <img
@@ -15,7 +15,7 @@ export default () => (
       height="25"
       width="auto"
       style={{
-        border: 'white solid 3px',
+        border: 'white solid 5px',
       }}
     />
   </a>

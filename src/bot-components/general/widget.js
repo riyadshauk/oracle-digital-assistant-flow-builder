@@ -11,7 +11,6 @@ import {
 import {
   DefaultComponentNodeBodyWithOneSpecialInPort,
   AddProperty,
-  DefaultComponentNodeForm,
   EditComponentTypeForm,
 } from '../../helpers/FunctionalComponents';
 import store from '../../redux/store';
@@ -27,7 +26,6 @@ export interface GeneralNodeWidgetState {
 
 /**
  * @author Riyad Shauk
- * @todo still need to be able to add to properties and add to transitions
  */
 export default class GeneralNodeWidget extends
   BaseWidget<GeneralNodeWidgetProps, GeneralNodeWidgetState> {

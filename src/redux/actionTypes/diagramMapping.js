@@ -3,3 +3,5 @@ export const MAP_NODE_NAME_TO_ID = 'MAP_NODE_NAME_TO_ID';
 export const MAP_PORT_NAME_TO_ID = 'MAP_PORT_NAME_TO_ID';
 
 export const UNMAP_NAME_TO_ID = 'UNMAP_NAME_TO_ID';
+
+export const SET_SELECTED_LINK = 'SET_SELECTED_LINK';

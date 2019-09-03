@@ -1,10 +1,11 @@
 // @flow
-import { NodeModel } from 'storm-react-diagrams';
+import { NodeModel, LinkModel } from 'storm-react-diagrams';
 import {
   MAP_NODE_TO_POSITION,
   MAP_NODE_NAME_TO_ID,
   MAP_PORT_NAME_TO_ID,
   UNMAP_NAME_TO_ID,
+  SET_SELECTED_LINK,
 } from '../actionTypes/diagramMapping';
 import { AdvancedPortModel } from '../../AdvancedDiagramFactories';
 
@@ -26,4 +27,9 @@ export const mapPortNameToID = (port: AdvancedPortModel) => ({
 export const unmapNameToID = (node: NodeModel) => ({
   type: UNMAP_NAME_TO_ID,
   payload: { node },
+});
+
+export const setSelectedLink = (link: LinkModel) => ({
+  type: SET_SELECTED_LINK,
+  payload: { link },
 });

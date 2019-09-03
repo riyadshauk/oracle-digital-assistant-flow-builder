@@ -457,7 +457,6 @@ export default (store: RepresentationStore = initialStore(),
       const { transitions } = state;
       const { actions } = transitions;
       if (transitions.next === targetName) {
-        // $FlowFixMe @todo why is this a Flow error?
         transitions.next = '';
       }
       if (actions) {
@@ -495,8 +494,6 @@ export default (store: RepresentationStore = initialStore(),
           o[k] = '';
         }
       };
-      console.log('REMOVE_TRANSITION, action.payload:', action.payload);
-      console.log('REMOVE_TRANSITION, sourceState:', sourceState);
       Object.entries(sourceState.properties || {})
         .forEach(entry => processEntry(sourceState.properties, entry));
       Object.entries(sourceState.transitions || {})
@@ -510,7 +507,8 @@ export default (store: RepresentationStore = initialStore(),
       if (sourceState.hasOwnProperty('transitions')
         // eslint-disable-next-line no-prototype-builtins
         && sourceState.transitions.hasOwnProperty('actions')
-        && Object.keys(sourceState.transitions.actions).length === 0) {
+        && Object.keys(sourceState.transitions.actions).length === 0
+        && sourceState.component !== 'System.Intent') {
         sourceState.transitions.return = sourceState.name;
       }
       return newStore;
@@ -557,7 +555,7 @@ export default (store: RepresentationStore = initialStore(),
       if (state !== undefined && !definedSystemComponents.has(state.component)) {
         delete stateProperty[propertyName];
 
-        // @todo delete propertyName from any references in states
+        // delete propertyName from any references in states
         // $FlowFixMe (mixed type error)
         Object.values(nextStore.representation.states).forEach((curState: State) => {
           Object.entries(curState.properties)
@@ -571,7 +569,7 @@ export default (store: RepresentationStore = initialStore(),
         });
       } else if (node.name === 'Context') { // or from Context node (context variables)
         delete nextStore.representation.context.variables[propertyName];
-        // @todo delete contextVariable from any referencing variable property
+        // delete contextVariable from any referencing variable property
         // $FlowFixMe (mixed type error)
         Object.values(nextStore.representation.states).forEach((curState: State) => {
           if (curState.properties && curState.properties.variable === propertyName) {

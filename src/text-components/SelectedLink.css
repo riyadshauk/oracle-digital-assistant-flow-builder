@@ -1,0 +1,8 @@
+.selectedLink {
+    color: white;
+    max-width: 200px;
+}
+li {
+    padding: 0;
+    margin: 0;
+}
