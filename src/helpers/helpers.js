@@ -16,6 +16,10 @@ import {
   renamePropertyValue,
   addParameter,
   addSystemVariable,
+  renameParameter,
+  removeParameter,
+  removeSystemVariable,
+  removeTransition,
 } from '../redux/actions/representation';
 import store from '../redux/store';
 import { AdvancedPortModel, AdvancedNodeModel } from '../AdvancedDiagramFactories';
@@ -126,8 +130,10 @@ export function updateLabelWrapper(delimiter: string) {
       const prevVals = portName.split(delimiter);
       const prev = { name: prevVals[0], value: prevVals[1] };
       const cur = { name: propertyName, value: propertyValue };
-      if (Object.prototype.hasOwnProperty.call(this.state.representation, 'context')) {
+      if (port.parent.type === 'context') {
         store.dispatch(renameContextVariable({ prev, cur }));
+      } else if (port.parent.type === 'parameters') {
+        store.dispatch(renameParameter({ prev, cur }));
       } else if (!definedSystemNodeTypes.has(port.parent.type)) {
         const stateName = this.state.name;
         store.dispatch(renamePropertyValue({
@@ -259,11 +265,41 @@ export function removeClicked(port: any) {
   const { label, id } = port.props.node.ports[port.props.name];
   const vals = label.split('––');
   const propertyName = vals[0].trim();
+  const ports = Object.values(port.props.node.ports);
+  ports.forEach((p) => {
+    const labelPropertyName = p.label.split('––')[0].trim();
+    if (labelPropertyName === propertyName) {
+      Object.values(p.links).forEach((link) => {
+        store.dispatch(
+          removeTransition({
+            sourcePortParentID: link.sourcePort.parent.id,
+            sourcePortLabel: link.sourcePort.label,
+            targetPortLabel: link.targetPort.label,
+            targetPortParentID: link.targetPort.parent.id,
+          }),
+        );
+        link.remove();
+        // this.forceUpdate();
+      });
+    }
+  });
+  if (port.props.node.type === 'context') {
+    store.dispatch(
+      removeProperty(port.props.node, propertyName, id),
+    );
+  } else if (port.props.node.type === 'parameters') {
+    store.dispatch(
+      removeParameter(propertyName),
+    );
+  } else if (port.props.node.type === 'systemVariables') {
+    store.dispatch(
+      removeSystemVariable(propertyName),
+    );
+  }
   delete port.props.node.ports[port.props.name];
   this.forceUpdate();
-  store.dispatch(
-    removeProperty(port.props.node, propertyName, id),
-  );
+  // eslint-disable-next-line no-undef
+  window.diagramEngine.repaintCanvas();
 }
 
 export function editTitleClicked(event: SyntheticInputEvent<EventTarget>) {

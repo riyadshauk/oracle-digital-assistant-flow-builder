@@ -335,10 +335,10 @@ export default (store: RepresentationStore = initialStore(),
           }
         };
         // $FlowFixMe: "missing in mixed"
-        Object.entries(state.properties || [])
+        Object.entries(state.properties || {})
           .forEach(entry => processEntry(state.properties, entry));
         // $FlowFixMe: "missing in mixed"
-        Object.entries(state.transitions || [])
+        Object.entries(state.transitions || {})
           .forEach(entry => processEntry(state.transitions, entry));
         // $FlowFixMe: "missing in mixed"
         if ((state.transitions || {}).actions) {
@@ -495,16 +495,22 @@ export default (store: RepresentationStore = initialStore(),
           o[k] = '';
         }
       };
-      Object.entries(sourceState.properties)
+      console.log('REMOVE_TRANSITION, action.payload:', action.payload);
+      console.log('REMOVE_TRANSITION, sourceState:', sourceState);
+      Object.entries(sourceState.properties || {})
         .forEach(entry => processEntry(sourceState.properties, entry));
-      Object.entries(sourceState.transitions)
-        .forEach(entry => processEntry(sourceState.transitions, entry));
+      Object.entries(sourceState.transitions || {})
+        .forEach(entry => processEntry(sourceState.transitions || {}, entry));
       if (sourceState.transitions.actions) {
-        Object.entries(sourceState.transitions.actions)
-          .forEach(entry => processEntry(sourceState.transitions.actions, entry));
+        Object.entries((sourceState.transitions || {}).actions || {})
+          .forEach(entry => processEntry(((sourceState.transitions || {}).actions || {}), entry));
       }
       // explicitly exit flow when no explicit transition is specified
-      if (Object.keys(sourceState.transitions.actions).length === 0) {
+      // eslint-disable-next-line no-prototype-builtins
+      if (sourceState.hasOwnProperty('transitions')
+        // eslint-disable-next-line no-prototype-builtins
+        && sourceState.transitions.hasOwnProperty('actions')
+        && Object.keys(sourceState.transitions.actions).length === 0) {
         sourceState.transitions.return = sourceState.name;
       }
       return newStore;
@@ -518,21 +524,21 @@ export default (store: RepresentationStore = initialStore(),
       return nextStore;
     }
     case REMOVE_PARAMETER: {
-      const { variable } = action.payload;
+      const { propertyName } = action.payload;
       const nextStore = { ...store };
       /**
        * @note: See REMOVE_TRANSITION for the full story of clearing out variable references.
        */
-      delete nextStore.representation.parameters[variable.name];
+      delete nextStore.representation.parameters[propertyName];
       return nextStore;
     }
     case REMOVE_SYSTEM_VARIABLE: {
-      const { variable } = action.payload;
+      const { propertyName } = action.payload;
       const nextStore = { ...store };
       /**
        * @note: See REMOVE_TRANSITION for the full story of clearing out variable references.
        */
-      delete nextStore.systemVariables[variable.name];
+      delete nextStore.systemVariables[propertyName];
       return nextStore;
     }
     case REMOVE_PROPERTY: {

@@ -152,13 +152,13 @@ export const removeProperty = (node: NodeModel, propertyName: string, portID: Po
   type: REMOVE_PROPERTY,
   payload: { node, propertyName, portID },
 });
-export const removeParameter = (variable: Variable) => ({
+export const removeParameter = (propertyName: string) => ({
   type: REMOVE_PARAMETER,
-  payload: { variable },
+  payload: { propertyName },
 });
-export const removeSystemVariable = (variable: Variable) => ({
+export const removeSystemVariable = (propertyName: string) => ({
   type: REMOVE_SYSTEM_VARIABLE,
-  payload: { variable },
+  payload: { propertyName },
 });
 
 export const updateComponent = (payload: { stateName: string, componentType: string }) => ({
