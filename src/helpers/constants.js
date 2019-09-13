@@ -24,3 +24,5 @@ export const definedSystemNodeTypes = new Set<string>(['copy-variables',
   'set-variable',
   'text',
 ]);
+
+export const YAMLTabSpaces = 2;

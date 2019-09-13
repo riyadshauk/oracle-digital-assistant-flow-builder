@@ -1,6 +1,8 @@
 .selectedLink {
     color: white;
     max-width: 200px;
+    padding-left: 10px;
+    list-style: none;
 }
 li {
     padding: 0;

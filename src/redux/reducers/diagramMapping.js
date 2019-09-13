@@ -6,6 +6,9 @@ import {
   MAP_PORT_NAME_TO_ID,
   UNMAP_NAME_TO_ID,
   SET_SELECTED_LINK,
+  MAP_LINK_TO_NODE_PAIR,
+  MARK_ID_INVISIBLE,
+  MARK_ID_VISIBLE
 } from '../actionTypes/diagramMapping';
 
 const initialStore: () => DiagramMappingStore = () => ({
@@ -13,6 +16,8 @@ const initialStore: () => DiagramMappingStore = () => ({
   idToPosition: {},
   lastNodeYPosition: 300,
   selectedLink: null,
+  linkToNodePair: {},
+  IDIsInvisible: {},
 });
 
 export default (store: DiagramMappingStore = initialStore(),
@@ -44,6 +49,30 @@ export default (store: DiagramMappingStore = initialStore(),
       return {
         ...store,
         nameToID: { ...store.nameToID, [port.name]: port.id },
+      };
+    }
+    case MAP_LINK_TO_NODE_PAIR: {
+      const { link, node1, node2 } = payload;
+      return {
+        ...store,
+        linkToNodePair: {
+          ...store.linkToNodePair,
+          [link.id]: [node1.id, node2.id],
+        },
+      };
+    }
+    case MARK_ID_INVISIBLE: {
+      const { id } = payload;
+      return {
+        ...store,
+        IDIsInvisible: { ...store.IDIsInvisible, [id]: true },
+      };
+    }
+    case MARK_ID_VISIBLE: {
+      const { id } = payload;
+      return {
+        ...store,
+        IDIsInvisible: { ...store.IDIsInvisible, [id]: false },
       };
     }
     case UNMAP_NAME_TO_ID: {

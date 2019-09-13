@@ -5,7 +5,10 @@ import {
   PortModel,
   DiagramModel,
 } from 'storm-react-diagrams';
-import { safeLoad } from 'js-yaml';
+import {
+  dump,
+  safeLoad,
+} from 'js-yaml';
 
 import './sass/main.scss';
 import { AdvancedNodeModel, AdvancedLinkModel } from './AdvancedDiagramFactories';
@@ -223,7 +226,7 @@ const integrateStatesInDiagramFromYAML = (activeModel: DiagramModel) => {
                 break;
               case 'Add Action': {
                 const addActionInput = button.parentElement.querySelector('input');
-                Object.entries(transitions.actions).forEach(([actionName]) => {
+                Object.entries(transitions.actions || {}).forEach(([actionName]) => {
                   nativeInputValueSetter.call(addActionInput, actionName);
                   addActionInput.dispatchEvent(event);
                   button.click();
@@ -232,12 +235,26 @@ const integrateStatesInDiagramFromYAML = (activeModel: DiagramModel) => {
                 break;
               case 'Add Property': {
                 const addPropertyNameInput = button.parentElement.querySelector('input');
-                Object.entries(properties).forEach(([propertyName, propertyValue]) => {
+                Object.entries(properties || {}).forEach(([propertyName, propertyValue]) => {
+                  // add propertyValue to diagram
                   nativeInputValueSetter.call(addPropertyNameInput, propertyName);
                   addPropertyNameInput.dispatchEvent(event);
                   button.click();
-                  let variablePort;
                   // if propertyValue exists as a variableName, create link to it in diagram
+                  if (!propertyValue) {
+                    return;
+                  }
+                  if (typeof propertyValue === 'object') {
+                    console.log('propertyValue is of type object:', propertyValue);
+                    try {
+                      // eslint-disable-next-line no-param-reassign
+                      propertyValue = JSON.stringify(propertyValue);
+                      // propertyValue = dump(propertyValue);
+                    } catch (err) {
+                      // do nothing for now
+                    }
+                  }
+                  let variablePort;
                   Object.keys(store.getState().representation.representation.context.variables)
                     .forEach((variableName) => {
                       if (variableName === propertyValue) {
@@ -295,17 +312,21 @@ const integrateStatesInDiagramFromYAML = (activeModel: DiagramModel) => {
           link.setTargetPort(contextVariablePort);
           activeModel.addLink(link);
         }
+        // add links to actions (if applicable / stateName provided)
         const { actions } = transitions;
         if (actions) {
           Object.entries(actions).forEach((actionEntry) => {
             const [YAMLActionKey, stateNameToTransitionTo] = actionEntry;
+            if (stateNameToTransitionTo === null) {
+              return;
+            }
             const nodeActionKey = mapYAMLActionKeyToNodeActionKey(YAMLActionKey);
             const targetNode = activeModel.getNode(nameToID[stateNameToTransitionTo]);
             const targetNodePort = findPortWithLabel(targetNode, 'IN');
             const link = new AdvancedLinkModel();
             const sourceNodePort = findPortWithLabel(node, nodeActionKey);
 
-            if (sourceNodePort !== undefined) {
+            if (sourceNodePort !== undefined && targetNodePort !== undefined) {
               link.addLabel(`${node.name} ––> ${targetNode.name}`);
               link.setSourcePort(sourceNodePort);
               link.setTargetPort(targetNodePort);
@@ -320,10 +341,12 @@ const integrateStatesInDiagramFromYAML = (activeModel: DiagramModel) => {
           const [nextNodeStateName] = states[idx + 1];
           const nextNode = activeModel.getNode(nameToID[nextNodeStateName]);
           const targetNodePort = findPortWithLabel(nextNode, 'IN');
-          link.addLabel(`${node.name} ––> ${nextNode.name}`);
-          link.setSourcePort(sourceNodePort);
-          link.setTargetPort(targetNodePort);
-          activeModel.addLink(link);
+          if (sourceNodePort !== undefined && targetNodePort !== undefined) {
+            link.addLabel(`${node.name} ––> ${nextNode.name}`);
+            link.setSourcePort(sourceNodePort);
+            link.setTargetPort(targetNodePort);
+            activeModel.addLink(link);
+          }
         }
       });
     },

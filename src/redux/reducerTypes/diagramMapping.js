@@ -6,4 +6,6 @@ export type DiagramMappingStore = {
   idToPosition: {},
   lastNodeYPosition: number,
   selectedLink: LinkModel,
+  linkToNodePair: {},
+  IDIsInvisible: {},
 };

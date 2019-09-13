@@ -7,6 +7,7 @@ export default () => (
       backgroundColor: 'white',
       position: 'fixed',
       right: '0px',
+      opacity: 0.8,
     }}
   >
     <img

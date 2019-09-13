@@ -1,7 +1,7 @@
 // @flow
 /* eslint-disable react/no-will-update-set-state */
 /* eslint-disable react/no-did-update-set-state */
-/* eslint-disable no-undef */
+/* eslint-env browser */
 
 /**
  * This file is simply an extension of the React component known as
@@ -44,6 +44,7 @@ import store from '../redux/store';
 import { removeState, removeTransition } from '../redux/actions/representation';
 import { AdvancedNodeModel } from '../AdvancedDiagramFactories';
 import { setSelectedLink } from '../redux/actions/diagramMapping';
+import { clickGutter } from '../text-components/Representation';
 
 export interface DiagramProps extends BaseWidgetProps {
   diagramEngine: DiagramEngine;
@@ -148,14 +149,11 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
   componentWillUnmount() {
     this.props.diagramEngine.removeListener(this.state.diagramEngineListener);
     this.props.diagramEngine.setCanvas(null);
-    // eslint-disable-next-line no-undef
     window.removeEventListener('keyup', this.onKeyUpPointer);
     // @Riyad-edit: only allow delete functionality while shift key is simultaneously pressed down.
-    // eslint-disable-next-line no-undef
     window.removeEventListener('keydown', this.onKeyDownPointer);
-    // eslint-disable-next-line no-undef
     window.removeEventListener('mouseUp', this.onMouseUp);
-    // eslint-disable-next-line no-undef
+    window.removeEventListener('dblclick', this.onDoubleClick);
     window.removeEventListener('mouseMove', this.onMouseMove);
   }
 
@@ -243,6 +241,31 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
       this.setState({ shiftKeyDown: true });
     }
   }
+
+  onDoubleClick = (event: Event) => {
+    const { diagramModel } = this.props.diagramEngine;
+    try {
+      const nodeName = event.srcElement.innerText;
+      const { nameToID } = store.getState().representation;
+      const node = diagramModel.getNode(nameToID[nodeName]);
+      const { name } = node;
+      switch (name) {
+        case 'Parameters':
+          clickGutter('parameters');
+          break;
+        case 'SystemVariables':
+          break;
+        case 'Context':
+          clickGutter('context');
+          break;
+        default:
+          clickGutter('states', name);
+          break;
+      }
+    } catch (err) {
+      // silently ignore error
+    }
+  };
 
   onMouseUp = (event: Event) => {
     const { diagramEngine } = this.props;
@@ -528,6 +551,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
             }
             this.state.document.addEventListener('mousemove', this.onMouseMove);
             this.state.document.addEventListener('mouseup', this.onMouseUp);
+            this.state.document.addEventListener('dblclick', this.onDoubleClick);
           }}
         >
           {this.state.renderedNodes && (
@@ -536,6 +560,7 @@ export default class ModifiedDiagramWidget extends DiagramWidget<DiagramProps, D
               pointAdded={(point: PointModel, event) => {
                 this.state.document.addEventListener('mousemove', this.onMouseMove);
                 this.state.document.addEventListener('mouseup', this.onMouseUp);
+                this.state.document.addEventListener('dblclick', this.onDoubleClick);
                 event.stopPropagation();
                 diagramModel.clearSelection(point);
                 this.setState({

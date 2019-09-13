@@ -11,6 +11,7 @@ import {
 } from 'storm-react-diagrams';
 import { addAction, addTransition } from '../redux/actions/representation';
 import store from '../redux/store';
+import { mapLinkToNodePair } from '../redux/actions/diagramMapping';
 
 export interface DefaultLinkModelListener extends LinkModelListener {
   colorChanged?: (event: BaseEvent<DefaultLinkModel> & { color: null | string }) => void;
@@ -36,8 +37,8 @@ export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLi
    * (setSourcePort and setTargetPort).
    */
   generateLabelIfPossible() {
-    if (this.targetPort === null
-      || this.sourcePort === null
+    if (!this.targetPort
+      || !this.sourcePort
       || this.sourcePort.parent.type === 'context'
     ) {
       return;
@@ -46,6 +47,11 @@ export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLi
     // this.addLabel(`${this.sourcePort.parent.name}.${this.sourcePort.label} -–> ${this.targetPort.parent.name}.${this.targetPort.label}`);
     // $FlowFixMe
     this.addLabel(`${this.sourcePort.label} ––> ${this.targetPort.label}`);
+
+    const [node1, node2] = [this.getSourcePort().getNode(), this.getTargetPort().getNode()];
+    if (node1 && node2) {
+      store.dispatch(mapLinkToNodePair(this, node1, node2));
+    }
 
     if (this.sourcePort.label === 'OUT' && this.targetPort.label === 'IN') {
       store.dispatch(
@@ -67,10 +73,10 @@ export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLi
   }
 
   setSourcePort(port: PortModel) {
-    if (port !== null) {
+    if (port) {
       port.addLink(this);
     }
-    if (this.sourcePort !== null) {
+    if (this.sourcePort) {
       this.sourcePort.removeLink(this);
     }
     this.sourcePort = port;
@@ -84,10 +90,10 @@ export default class ModifiedDefaultLinkModel extends DefaultLinkModel<DefaultLi
   }
 
   setTargetPort(port: PortModel) {
-    if (port !== null) {
+    if (port) {
       port.addLink(this);
     }
-    if (this.targetPort !== null) {
+    if (this.targetPort) {
       this.targetPort.removeLink(this);
     }
     this.targetPort = port;

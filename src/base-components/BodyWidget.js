@@ -1,5 +1,7 @@
 // @flow
+/* eslint-env browser */
 import React, { Component } from 'react';
+import { Resizable } from 're-resizable';
 import TrayWidget from './TrayWidget';
 import App from '../App';
 import TrayItemWidget from './TrayItemWidget';
@@ -14,13 +16,17 @@ export type BodyWidgetProps = {
   app: App;
 }
 
-export type BodyWidgetState = {};
+export type BodyWidgetState = {
+  prevLayerX: Number;
+};
 
 /**
  * @author Dylan Vorster
  * @author Riyad Shauk
  */
 export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetState> {
+  currentCanvasWidth: number;
+
   constructor(props: BodyWidgetProps) {
     super(props);
     this.state = {};
@@ -35,18 +41,23 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
           <SourceCodeReference />
         </div>
         <div className="content">
-          <TrayWidget>
-            <TrayItemWidget model={{ type: 'output' }} name="Output" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'text' }} name="Text" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'equals' }} name="Equals" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'exists' }} name="Exists" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'list' }} name="List" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'intent' }} name="Intent" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
-            <TrayItemWidget model={{ type: 'general' }} name="General Component" color="rgb(0,192,255)" />
-            <SelectedLink />
-          </TrayWidget>
+          <Resizable>
+            <TrayWidget>
+
+              <TrayItemWidget model={{ type: 'output' }} name="Output" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'text' }} name="Text" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'equals' }} name="Equals" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'exists' }} name="Exists" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'list' }} name="List" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'intent' }} name="Intent" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'set-variable' }} name="Set Variable" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'copy-variables' }} name="Copy Variables" color="rgb(0,192,255)" />
+              <TrayItemWidget model={{ type: 'general' }} name="General Component" color="rgb(0,192,255)" />
+
+              <SelectedLink />
+
+            </TrayWidget>
+          </Resizable>
           <div
             className="diagram-layer"
             onDrop={(event) => {
@@ -104,10 +115,28 @@ export default class BodyWidget extends Component<BodyWidgetProps, BodyWidgetSta
           >
             <ModifiedDiagramWidget className="srd-demo-canvas" diagramEngine={app.getDiagramEngine()} />
           </div>
-          <div>
+          <Resizable
+            // eslint-disable-next-line no-unused-vars
+            onResizeStart={(e, direction, ref) => {
+              // console.log('onResizeStart, e:', e, 'direction:', direction, 'ref:', ref);
+              this.currentCanvasWidth = document.querySelector('.srd-demo-canvas').clientWidth;
+              // this.currentRightBarWidth = document.querySelector('.rightBar').clientWidth;
+              // eslint-disable-next-line max-len
+              // console.log('onResizeStart, this.currentRightBarWidth:', this.currentRightBarWidth);
+              const canvas = document.querySelector('.body .content .srd-demo-canvas');
+              canvas.setAttribute('style', 'width: 0px;');
+            }}
+            onResizeStop={(e, direction, ref, d) => {
+              // console.log('onResizeStop, e:', e, 'direction:', direction, 'ref:', ref, 'd:', d);
+              const newWidth = this.currentCanvasWidth - d.width;
+              const canvas = document.querySelector('.body .content .srd-demo-canvas');
+              canvas.setAttribute('style', `width: ${newWidth}px;`);
+            }}
+            className="rightBar"
+          >
             <Legend />
             <Representation />
-          </div>
+          </Resizable>
         </div>
       </div>
     );
