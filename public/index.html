@@ -24,6 +24,29 @@
     -->
     <!-- <link rel="stylesheet" href="./style.css"> -->
     <title>DA Visual Builder</title>
+    <script type='text/javascript'>
+      /**
+       * @see https://resources.count.ly/docs/countly-sdk-for-web
+       */
+      var Countly = Countly || {}; // usage of var is important (async code below)
+      Countly.q = Countly.q || [];
+      Countly.app_key = '225d81c239fb38714840f1100eb9ca18f5e70bb6';
+      Countly.url = 'https://riyadshauk.com/countly';
+  
+      // Track sessions automatically (recommended)
+      Countly.q.push(['track_sessions']);
+      // Track web page views automatically (recommended)
+      Countly.q.push(['track_pageview']);
+  
+      // Load Countly script asynchronously
+      (() => {
+        const cly = document.createElement('script'); cly.type = 'text/javascript';
+        cly.async = true;
+        cly.src = 'https://riyadshauk.com/countly/sdk/web/countly.js';
+        cly.onload = () => Countly.init();
+        const s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(cly, s);
+      })();
+    </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
