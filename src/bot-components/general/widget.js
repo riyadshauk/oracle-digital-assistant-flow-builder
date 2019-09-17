@@ -1,6 +1,7 @@
 // @flow
 import * as React from 'react';
 import { BaseWidget } from 'storm-react-diagrams';
+import { Resizable } from 're-resizable';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import {
   registerNotEditable,
@@ -85,27 +86,28 @@ export default class GeneralNodeWidget extends
   render() {
     const { node } = this.props;
     return (
-      <div className="default-component-node" style={{ position: 'relative' }}>
-        {/* {DefaultComponentNodeForm.apply(this, [this])} */}
-        {EditComponentTypeForm.apply(this, [this])}
-        {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this, [
-          // $FlowFixMe
-          <div className={this.bem('__in')}>
-            {
-              node.getOutPorts().map((port) => {
-                if (port.label === 'actions' || port.label === 'next' || port.label === 'OUT') {
-                  return;
-                }
-                // eslint-disable-next-line consistent-return
-                return generatePort.apply(this, [port]);
-              })
-            }
-          </div>,
-          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Property', ['transitions']),
-          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Transition', ['transitions']),
-          AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Action', ['transitions', 'actions']),
-        ]])}
-      </div>
+      <Resizable>
+        <div className="default-component-node" style={{ position: 'relative' }}>
+          {/* {DefaultComponentNodeForm.apply(this, [this])} */}
+          {EditComponentTypeForm.apply(this, [this])}
+          {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this, [
+            // $FlowFixMe
+            <div className={this.bem('__in')}>
+              {
+                node.getOutPorts().map((port) => {
+                  if (port.label === 'actions' || port.label === 'next' || port.label === 'OUT') {
+                    return undefined;
+                  }
+                  return generatePort.apply(this, [port]);
+                })
+              }
+            </div>,
+            AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Property', ['transitions']),
+            AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Transition', ['transitions']),
+            AddProperty(this, node, addPropertyClicked, updateStatePropertyText, 'Action', ['transitions', 'actions']),
+          ]])}
+        </div>
+      </Resizable>
     );
   }
 }

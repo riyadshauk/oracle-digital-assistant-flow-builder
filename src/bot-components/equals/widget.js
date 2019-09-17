@@ -1,6 +1,7 @@
 // @flow
 import * as React from 'react';
 import { BaseWidget } from 'storm-react-diagrams';
+import { Resizable } from 're-resizable';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeForm, DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/FunctionalComponents';
 import { registerNotEditable } from '../../helpers/helpers';
@@ -94,10 +95,12 @@ export default class EqualsNodeWidget extends
   render() {
     const { node } = this.props;
     return (
-      <div className="default-component-node" style={{ position: 'relative' }}>
-        { DefaultComponentNodeForm.apply(this, [this]) }
-        { DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this]) }
-      </div>
+      <Resizable>
+        <div className="default-component-node" style={{ position: 'relative' }}>
+          {DefaultComponentNodeForm.apply(this, [this])}
+          {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this])}
+        </div>
+      </Resizable>
     );
   }
 }

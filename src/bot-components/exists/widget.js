@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
   BaseWidget,
 } from 'storm-react-diagrams';
+import { Resizable } from 're-resizable';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeBodyWithOneSpecialInPort } from '../../helpers/FunctionalComponents';
 import store from '../../redux/store';
@@ -82,9 +83,11 @@ export default class ExistsNodeWidget extends
   render() {
     const { node } = this.props;
     return (
-      <div className="default-component-node" style={{ position: 'relative' }}>
-        {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this])}
-      </div>
+      <Resizable>
+        <div className="default-component-node" style={{ position: 'relative' }}>
+          {DefaultComponentNodeBodyWithOneSpecialInPort.apply(this, [node, this])}
+        </div>
+      </Resizable>
     );
   }
 }

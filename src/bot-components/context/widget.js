@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
   BaseWidget,
 } from 'storm-react-diagrams';
+import { Resizable } from 're-resizable';
 import { AdvancedNodeModel } from '../../AdvancedDiagramFactories';
 import { DefaultComponentNodeBody, VariableNameComponentNodeForm } from '../../helpers/FunctionalComponents';
 
@@ -49,10 +50,12 @@ export default class ContextNodeWidget extends BaseWidget<ContextNodeWidgetProps
   render() {
     const { node } = this.props;
     return (
-      <div className="default-component-node" style={{ position: 'relative' }}>
-        {VariableNameComponentNodeForm.apply(this, [this])}
-        {DefaultComponentNodeBody.apply(this, [node, this])}
-      </div>
+      <Resizable>
+        <div className="default-component-node" style={{ position: 'relative' }}>
+          {VariableNameComponentNodeForm.apply(this, [this])}
+          {DefaultComponentNodeBody.apply(this, [node, this])}
+        </div>
+      </Resizable>
     );
   }
 }

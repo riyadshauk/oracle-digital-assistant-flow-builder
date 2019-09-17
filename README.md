@@ -2,4 +2,7 @@ This project is a WIP. It aims to deliver a graphic, drag-and-drop-based designe
 
 It's in the form of a [web-app that can be run in a browser](https://riyadshauk.com/digital-assistant/).
 
-$ `yarn && yarn start # installs and runs the app locally`
+As usual, to install deps into node_modules and run a local server on http://localhost:3000, run the following:
+```bash
+$ yarn && yarn start
+```

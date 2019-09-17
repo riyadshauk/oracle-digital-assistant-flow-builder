@@ -5,10 +5,7 @@ import {
   PortModel,
   DiagramModel,
 } from 'storm-react-diagrams';
-import {
-  dump,
-  safeLoad,
-} from 'js-yaml';
+import { safeLoad } from 'js-yaml';
 
 import './sass/main.scss';
 import { AdvancedNodeModel, AdvancedLinkModel } from './AdvancedDiagramFactories';
@@ -245,11 +242,9 @@ const integrateStatesInDiagramFromYAML = (activeModel: DiagramModel) => {
                     return;
                   }
                   if (typeof propertyValue === 'object') {
-                    console.log('propertyValue is of type object:', propertyValue);
                     try {
                       // eslint-disable-next-line no-param-reassign
                       propertyValue = JSON.stringify(propertyValue);
-                      // propertyValue = dump(propertyValue);
                     } catch (err) {
                       // do nothing for now
                     }

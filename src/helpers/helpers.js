@@ -318,10 +318,7 @@ export function editTitleClicked(event: SyntheticInputEvent<EventTarget>) {
 
 export function editComponentTypeClicked(event: SyntheticInputEvent<EventTarget>) {
   if (this.state.isEditingComponentType) {
-    this.setState(prevState => ({
-      isEditingComponentType: false,
-      nameBeforeEditTitleClicked: prevState.component,
-    }));
+    this.setState({ isEditingComponentType: false });
     updateComponentTypeName.apply(this, [event]);
   } else {
     this.setState({
