@@ -210,6 +210,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
      */
     store.dispatch({ type: 'RESET_STATE' });
     window.newModel();
+    // setTimeout is important, otherwise links don't stay attached to node when it is moved
     setTimeout(() => generateDiagramFromYAML(code));
   };
 
@@ -222,6 +223,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
     this.setState({ isTyping: false });
     store.dispatch({ type: 'RESET_STATE' });
     window.newModel();
+    // setTimeout is important, otherwise links don't stay attached to node when it is moved
     setTimeout(() => generateDiagramFromYAML(pizzaBotExample));
   };
 
@@ -233,7 +235,7 @@ export default class extends Component<RepresentationProps, RepresentationState>
     }
     store.dispatch({ type: 'RESET_STATE' });
     window.newModel();
-    setTimeout(() => generateDiagramFromYAML(''));
+    generateDiagramFromYAML('');
   };
 
   render() {

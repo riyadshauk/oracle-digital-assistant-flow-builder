@@ -6,7 +6,7 @@
   "dependencies": {
     "babel-eslint": "^10.0.1",
     "codemirror": "^5.48.4",
-    "flow-bin": "^0.94.0",
+    "flow-bin": "^0.108.0",
     "js-yaml": "^3.13.0",
     "lodash": "^4.17.11",
     "node-sass": "^4.11.0",

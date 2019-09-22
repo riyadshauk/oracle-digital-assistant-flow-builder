@@ -88,19 +88,15 @@ const addContextVariablesToDiagramFromYAML = (activeModel) => {
 };
 
 const addPlatformVersionToYAML = () => {
-  setTimeout(() => {
-    if (((representation || {}).metadata || {}).platformVersion) {
-      store.dispatch(addPlatform(representation.metadata.platformVersion));
-    }
-  });
+  if (((representation || {}).metadata || {}).platformVersion) {
+    store.dispatch(addPlatform(representation.metadata.platformVersion));
+  }
 };
 
 const addNameToYAML = () => {
-  setTimeout(() => {
-    if ((representation || {}).name) {
-      store.dispatch(addName(representation.name));
-    }
-  });
+  if ((representation || {}).name) {
+    store.dispatch(addName(representation.name));
+  }
 };
 
 const addParametersToDiagramFromYAML = (activeModel: DiagramModel) => {
@@ -178,174 +174,172 @@ const findPortWithLabel = (node: NodeModel, label: any) => {
 };
 
 const integrateStatesInDiagramFromYAML = (activeModel: DiagramModel) => {
-  setTimeout(
-    () => {
-      const { nameToID } = store.getState().representation;
+  setTimeout(() => {
+    const { nameToID } = store.getState().representation;
 
-      const states = Object.entries((representation || {}).states || {});
+    const states = Object.entries((representation || {}).states || {});
 
-      states.forEach((entry, idx) => {
-        const [stateName, state] = entry;
-        const node = activeModel.getNode(nameToID[stateName]);
+    states.forEach((entry, idx) => {
+      const [stateName, state] = entry;
+      const node = activeModel.getNode(nameToID[stateName]);
 
 
-        const { properties, component, transitions } = state;
-        const { variable } = properties;
-        if (node.type === 'general') {
-          const event = new Event('input', { bubbles: true });
-          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      const { properties, component, transitions } = state;
+      const { variable } = properties;
+      if (node.type === 'general') {
+        const event = new Event('input', { bubbles: true });
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
 
-          // rename general component type
-          const editComponentTypeButton = document.querySelector(`[data-nodeid="${nameToID[stateName]}"] .srd-default-node__title button`);
-          editComponentTypeButton.click(); // start editing
-          const componentTypeInput = document.querySelector(`[data-nodeid="${nameToID[stateName]}"] .srd-default-node__title input`);
-          nativeInputValueSetter.call(componentTypeInput, component);
-          componentTypeInput.dispatchEvent(event);
-          editComponentTypeButton.click(); // save edits
+        // rename general component type
+        const editComponentTypeButton = document.querySelector(`[data-nodeid="${nameToID[stateName]}"] .srd-default-node__title button`);
+        editComponentTypeButton.click(); // start editing
+        const componentTypeInput = document.querySelector(`[data-nodeid="${nameToID[stateName]}"] .srd-default-node__title input`);
+        nativeInputValueSetter.call(componentTypeInput, component);
+        componentTypeInput.dispatchEvent(event);
+        editComponentTypeButton.click(); // save edits
 
-          // add transitions, actions, and properties
-          const buttons = [
-            ...document.querySelectorAll(`[data-nodeid="${nameToID[stateName]}"] button`),
-          ];
-          buttons.forEach((button) => {
-            switch (button.innerHTML) {
-              case 'Add Transition': {
-                const transitionInput = button.parentElement.querySelector('input');
-                Object.entries(transitions).forEach(([transitionName]) => {
-                  if (transitionName === 'actions') {
-                    return;
+        // add transitions, actions, and properties
+        const buttons = [
+          ...document.querySelectorAll(`[data-nodeid="${nameToID[stateName]}"] button`),
+        ];
+        buttons.forEach((button) => {
+          switch (button.innerHTML) {
+            case 'Add Transition': {
+              const transitionInput = button.parentElement.querySelector('input');
+              Object.entries(transitions).forEach(([transitionName]) => {
+                if (transitionName === 'actions') {
+                  return;
+                }
+                nativeInputValueSetter.call(transitionInput, transitionName);
+                transitionInput.dispatchEvent(event);
+                button.click();
+              });
+            }
+              break;
+            case 'Add Action': {
+              const addActionInput = button.parentElement.querySelector('input');
+              Object.entries(transitions.actions || {}).forEach(([actionName]) => {
+                nativeInputValueSetter.call(addActionInput, actionName);
+                addActionInput.dispatchEvent(event);
+                button.click();
+              });
+            }
+              break;
+            case 'Add Property': {
+              const addPropertyNameInput = button.parentElement.querySelector('input');
+              Object.entries(properties || {}).forEach(([propertyName, propertyValue]) => {
+                // add propertyValue to diagram
+                nativeInputValueSetter.call(addPropertyNameInput, propertyName);
+                addPropertyNameInput.dispatchEvent(event);
+                button.click();
+                // if propertyValue exists as a variableName, create link to it in diagram
+                if (!propertyValue) {
+                  return;
+                }
+                if (typeof propertyValue === 'object') {
+                  try {
+                    // eslint-disable-next-line no-param-reassign
+                    propertyValue = JSON.stringify(propertyValue);
+                  } catch (err) {
+                    // do nothing for now
                   }
-                  nativeInputValueSetter.call(transitionInput, transitionName);
-                  transitionInput.dispatchEvent(event);
-                  button.click();
-                });
-              }
-                break;
-              case 'Add Action': {
-                const addActionInput = button.parentElement.querySelector('input');
-                Object.entries(transitions.actions || {}).forEach(([actionName]) => {
-                  nativeInputValueSetter.call(addActionInput, actionName);
-                  addActionInput.dispatchEvent(event);
-                  button.click();
-                });
-              }
-                break;
-              case 'Add Property': {
-                const addPropertyNameInput = button.parentElement.querySelector('input');
-                Object.entries(properties || {}).forEach(([propertyName, propertyValue]) => {
-                  // add propertyValue to diagram
-                  nativeInputValueSetter.call(addPropertyNameInput, propertyName);
-                  addPropertyNameInput.dispatchEvent(event);
-                  button.click();
-                  // if propertyValue exists as a variableName, create link to it in diagram
-                  if (!propertyValue) {
-                    return;
-                  }
-                  if (typeof propertyValue === 'object') {
-                    try {
-                      // eslint-disable-next-line no-param-reassign
-                      propertyValue = JSON.stringify(propertyValue);
-                    } catch (err) {
-                      // do nothing for now
-                    }
-                  }
-                  let variablePort;
-                  Object.keys(store.getState().representation.representation.context.variables)
-                    .forEach((variableName) => {
-                      if (variableName === propertyValue) {
-                        variablePort = getContextVariablePort(activeModel, variableName);
-                      }
-                    });
-                  Object.keys(store.getState().representation.systemVariables)
-                    .forEach((variableName) => {
-                      if (variableName === propertyValue) {
-                        variablePort = getSystemVariablesVariablePort(activeModel, variableName);
-                      }
-                    });
-                  Object.keys(store.getState().representation.representation.parameters)
-                    .forEach((variableName) => {
-                      if (variableName === propertyValue) {
-                        variablePort = getParametersVariablePort(activeModel, variableName);
-                      }
-                    });
-                  if (!variablePort) {
-                    variablePort = addSystemVariablesVariable(activeModel, propertyValue);
-                  }
-                  // create link from variablePort to port that was just created
-                  Object.values(node.ports).forEach((port) => {
-                    if (port.label === propertyName) {
-                      const link = new AdvancedLinkModel();
-                      link.setSourcePort(port);
-                      link.setTargetPort(variablePort);
-                      activeModel.addLink(link);
+                }
+                let variablePort;
+                Object.keys(store.getState().representation.representation.context.variables)
+                  .forEach((variableName) => {
+                    if (variableName === propertyValue) {
+                      variablePort = getContextVariablePort(activeModel, variableName);
                     }
                   });
+                Object.keys(store.getState().representation.systemVariables)
+                  .forEach((variableName) => {
+                    if (variableName === propertyValue) {
+                      variablePort = getSystemVariablesVariablePort(activeModel, variableName);
+                    }
+                  });
+                Object.keys(store.getState().representation.representation.parameters)
+                  .forEach((variableName) => {
+                    if (variableName === propertyValue) {
+                      variablePort = getParametersVariablePort(activeModel, variableName);
+                    }
+                  });
+                if (!variablePort) {
+                  variablePort = addSystemVariablesVariable(activeModel, propertyValue);
+                }
+                // create link from variablePort to port that was just created
+                Object.values(node.ports).forEach((port) => {
+                  if (port.label === propertyName) {
+                    const link = new AdvancedLinkModel();
+                    link.setSourcePort(port);
+                    link.setTargetPort(variablePort);
+                    activeModel.addLink(link);
+                  }
                 });
-                break;
-              }
-              default:
-                break;
+              });
+              break;
             }
-          });
-        }
-        if (variable) {
-          // create link in diagram to variable, also add variable to representation in state
-          let contextVariablePort = getContextVariablePort(activeModel, variable);
-          if (!contextVariablePort) {
-            contextVariablePort = addSystemVariablesVariable(activeModel, variable);
+            default:
+              break;
           }
-
-          let sourcePort: PortModel;
-          Object.values(node.ports).forEach((port) => {
-            if (port.label === 'variable') {
-              sourcePort = port;
-            }
-          });
-          // add links to context variable
-          const link = new AdvancedLinkModel();
-          link.setSourcePort(sourcePort);
-          link.setTargetPort(contextVariablePort);
-          activeModel.addLink(link);
+        });
+      }
+      if (variable) {
+        // create link in diagram to variable, also add variable to representation in state
+        let contextVariablePort = getContextVariablePort(activeModel, variable);
+        if (!contextVariablePort) {
+          contextVariablePort = addSystemVariablesVariable(activeModel, variable);
         }
-        // add links to actions (if applicable / stateName provided)
-        const { actions } = transitions;
-        if (actions) {
-          Object.entries(actions).forEach((actionEntry) => {
-            const [YAMLActionKey, stateNameToTransitionTo] = actionEntry;
-            if (stateNameToTransitionTo === null) {
-              return;
-            }
-            const nodeActionKey = mapYAMLActionKeyToNodeActionKey(YAMLActionKey);
-            const targetNode = activeModel.getNode(nameToID[stateNameToTransitionTo]);
-            const targetNodePort = findPortWithLabel(targetNode, 'IN');
-            const link = new AdvancedLinkModel();
-            const sourceNodePort = findPortWithLabel(node, nodeActionKey);
 
-            if (sourceNodePort !== undefined && targetNodePort !== undefined) {
-              link.addLabel(`${node.name} ––> ${targetNode.name}`);
-              link.setSourcePort(sourceNodePort);
-              link.setTargetPort(targetNodePort);
-              activeModel.addLink(link);
-            }
-          });
-        }
-        const ret = transitions.return;
-        if (!actions && !ret && idx < states.length - 1) {
+        let sourcePort: PortModel;
+        Object.values(node.ports).forEach((port) => {
+          if (port.label === 'variable') {
+            sourcePort = port;
+          }
+        });
+        // add links to context variable
+        const link = new AdvancedLinkModel();
+        link.setSourcePort(sourcePort);
+        link.setTargetPort(contextVariablePort);
+        activeModel.addLink(link);
+      }
+      // add links to actions (if applicable / stateName provided)
+      const { actions } = transitions;
+      if (actions) {
+        Object.entries(actions).forEach((actionEntry) => {
+          const [YAMLActionKey, stateNameToTransitionTo] = actionEntry;
+          if (stateNameToTransitionTo === null) {
+            return;
+          }
+          const nodeActionKey = mapYAMLActionKeyToNodeActionKey(YAMLActionKey);
+          const targetNode = activeModel.getNode(nameToID[stateNameToTransitionTo]);
+          const targetNodePort = findPortWithLabel(targetNode, 'IN');
           const link = new AdvancedLinkModel();
-          const sourceNodePort = findPortWithLabel(node, 'OUT');
-          const [nextNodeStateName] = states[idx + 1];
-          const nextNode = activeModel.getNode(nameToID[nextNodeStateName]);
-          const targetNodePort = findPortWithLabel(nextNode, 'IN');
+          const sourceNodePort = findPortWithLabel(node, nodeActionKey);
+
           if (sourceNodePort !== undefined && targetNodePort !== undefined) {
-            link.addLabel(`${node.name} ––> ${nextNode.name}`);
+            link.addLabel(`${node.name} ––> ${targetNode.name}`);
             link.setSourcePort(sourceNodePort);
             link.setTargetPort(targetNodePort);
             activeModel.addLink(link);
           }
+        });
+      }
+      const ret = transitions.return;
+      if (!actions && !ret && idx < states.length - 1) {
+        const link = new AdvancedLinkModel();
+        const sourceNodePort = findPortWithLabel(node, 'OUT');
+        const [nextNodeStateName] = states[idx + 1];
+        const nextNode = activeModel.getNode(nameToID[nextNodeStateName]);
+        const targetNodePort = findPortWithLabel(nextNode, 'IN');
+        if (sourceNodePort !== undefined && targetNodePort !== undefined) {
+          link.addLabel(`${node.name} ––> ${nextNode.name}`);
+          link.setSourcePort(sourceNodePort);
+          link.setTargetPort(targetNodePort);
+          activeModel.addLink(link);
         }
-      });
-    },
-  );
+      }
+    });
+  });
 };
 
 const mapValuesFromYAMLToDiagramRepresentation = (activeModel: DiagramModel) => {
