@@ -9,7 +9,7 @@
     "flow-bin": "^0.108.0",
     "js-yaml": "^3.13.0",
     "lodash": "^4.17.11",
-    "node-sass": "^4.11.0",
+    "node-sass": "^4.13.1",
     "re-resizable": "^6.0.0",
     "react": "^16.8.4",
     "react-codemirror2": "^6.0.0",
