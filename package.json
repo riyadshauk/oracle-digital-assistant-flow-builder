@@ -8,7 +8,7 @@
     "codemirror": "^5.48.4",
     "flow-bin": "^0.108.0",
     "js-yaml": "^3.13.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.21",
     "node-sass": "^4.11.0",
     "re-resizable": "^6.0.0",
     "react": "^16.8.4",
