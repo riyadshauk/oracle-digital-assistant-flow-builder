@@ -1,4 +1,4 @@
-import { safeLoad } from 'js-yaml';
+import { load } from 'js-yaml';
 
 export const yaml = `
 metadata:
@@ -145,4 +145,4 @@ states:
       return: "unresolved"
 `;
 
-export const json = safeLoad(yaml);
+export const json = load(yaml);

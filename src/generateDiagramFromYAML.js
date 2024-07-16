@@ -5,7 +5,7 @@ import {
   PortModel,
   DiagramModel,
 } from 'storm-react-diagrams';
-import { safeLoad } from 'js-yaml';
+import { load } from 'js-yaml';
 
 import './sass/main.scss';
 import { AdvancedNodeModel, AdvancedLinkModel } from './AdvancedDiagramFactories';
@@ -394,7 +394,7 @@ const mapValuesFromYAMLToDiagramRepresentation = (activeModel: DiagramModel) => 
 };
 
 export default (yaml: string) => {
-  representation = safeLoad(yaml);
+  representation = load(yaml);
   addPlatformVersionToYAML();
   addNameToYAML();
   addParametersToDiagramFromYAML(window.activeModel);
